@@ -24,7 +24,7 @@ SUMMARY="LZ4"
 DESC="Extremely fast compression"
 
 # lz4 was moved to omnios core from r151035 on
-[ $RELVER -ge 151035 ] && exit 0
+exit 0
 
 OPREFIX=$PREFIX
 PREFIX+=/$PROG

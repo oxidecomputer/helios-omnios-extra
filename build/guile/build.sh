@@ -22,8 +22,6 @@ PKG=ooce/library/guile
 SUMMARY="GNU Ubiquitous Intelligent Language for Extensions"
 DESC="$SUMMARY"
 
-[ $RELVER -lt 151030 ] && exit 0
-
 BUILD_DEPENDS_IPS="ooce/library/unistring ooce/library/bdw-gc"
 
 OPREFIX=$PREFIX

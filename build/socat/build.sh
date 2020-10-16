@@ -24,7 +24,7 @@ DESC="socat is a relay for bidirectional data transfer "
 DESC+="between two independent data channels."
 
 # socat was moved to omnios core from r151031 on
-[ $RELVER -ge 151031 ] && exit 0
+exit 0
 
 set_arch 64
 

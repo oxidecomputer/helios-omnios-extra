@@ -24,7 +24,7 @@ DESC="Zstandard is a real-time compression algorithm, providing high "
 DESC+="compression ratios."
 
 # zstd was moved to omnios core from r151035 on
-[ $RELVER -ge 151035 ] && exit 0
+exit 0
 
 BMI_EXPECTED=1
 

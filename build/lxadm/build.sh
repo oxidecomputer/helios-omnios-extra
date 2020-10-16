@@ -35,7 +35,7 @@ BUILDARCH=32    # or 64 or both ... for libraries we want both for tools 32 bit 
 PREFIX=/opt/ooce
 
 # lxadm has been superseded by zadm
-[ $RELVER -ge 151035 ] && exit 0
+exit 0
 
 set_mirror "$GITHUB/hadfl/$PROG/releases/download"
 set_checksum sha256 \

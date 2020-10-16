@@ -23,8 +23,6 @@ SUMMARY="AcmeFetch"
 DESC="A thin wrapper arount he ACME::Protocol library to fetch and maintain "
 DESC+="ssl certificates using the the services of Let's Encrypt!"
 
-[ $RELVER -lt 151033 ] && RUN_DEPENDS_IPS="runtime/perl-64"
-
 OPREFIX=$PREFIX
 PREFIX+="/$PROG"
 

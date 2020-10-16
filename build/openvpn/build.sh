@@ -74,12 +74,6 @@ CONFIGURE_OPTS_64+="
     --libdir=$OPREFIX/lib/$ISAPART64
 "
 
-if [ $RELVER -lt 151035 ]; then
-    # lz4 was moved to core in r151035
-    export LZ4_CFLAGS="-I$OPREFIX/include"
-    export LZ4_LIBS="-L$OPREFIX/lib/$ISAPART64 -R$OPREFIX/lib/$ISAPART64 -llz4"
-fi
-
 download_source $PROG $PROG $VER
 patch_source
 run_autoreconf -i
@@ -98,11 +92,6 @@ VER=$AUTHLDAPVER
 PKG=ooce/network/openvpn-auth-ldap
 SUMMARY="OpenVPN Auth-LDAP Plugin"
 DESC="username/password authentication via LDAP for OpenVPN 2.x."
-
-if [ $RELVER -lt 151034 ]; then
-    logmsg "--- $PKG is not built for r$RELVER"
-    exit 0
-fi
 
 OVPNDIR=$DESTDIR$OPREFIX/include
 LIBDIR=$OPREFIX/lib/$ISAPART64/openvpn/plugins

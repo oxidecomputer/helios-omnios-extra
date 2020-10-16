@@ -192,7 +192,7 @@ TESTSUITE_MAKE=$USRBIN/gmake
 UNZIP=$USRBIN/unzip
 WGET=$USRBIN/wget
 XZCAT=$USRBIN/xzcat
-[ $RELVER -ge 151035 ] && ZSTD=$USRBIN/zstd || ZSTD=$OOCEBIN/zstd
+ZSTD=$USRBIN/zstd
 
  # Command for privilege escalation. Can be overridden in site.sh
 PFEXEC=$USRBIN/sudo
@@ -294,19 +294,18 @@ case $RELVER in
     151029|151030)      DEFAULT_GCC_VER=8; ILLUMOS_GCC_VER=4.4.4 ;;
     15103[12])          DEFAULT_GCC_VER=8; ILLUMOS_GCC_VER=7 ;;
     15103[34])          DEFAULT_GCC_VER=9; ILLUMOS_GCC_VER=7 ;;
-    15103[5-9])         DEFAULT_GCC_VER=10; ILLUMOS_GCC_VER=7 ;;
+    15103[5-9]|1)       DEFAULT_GCC_VER=10; ILLUMOS_GCC_VER=7 ;;
     *) logerr "Unknown release '$RELVER', can't select compiler." ;;
 esac
 
 PYTHON2VER=2.7
 case $RELVER in
-    15103[7-9])         PYTHON3VER=3.9 ;;
+    15103[7-9]|1)       PYTHON3VER=3.9 ;;
     15103[3-6])         PYTHON3VER=3.7 ;;
     *)                  PYTHON3VER=3.5 ;;
 esac
 # Specify default Python version for building packages
-[ $RELVER -lt 151029 ] && DEFAULT_PYTHON_VER=$PYTHON2VER \
-    || DEFAULT_PYTHON_VER=$PYTHON3VER
+DEFAULT_PYTHON_VER=$PYTHON3VER
 
 # Default database versions to bundle into packages which use the libraries
 PGSQLVER=12

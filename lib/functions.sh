@@ -584,7 +584,7 @@ BasicRequirements
 #############################################################################
 
 opensslver=`pkg mediator -H openssl 2>/dev/null| awk '{print $3}'`
-[ "$RELVER" -lt 151027 ] && defsslver="1.0" || defsslver="1.1"
+defsslver="1.1"
 if [ -n "$opensslver" -a "$opensslver" != "$defsslver" ]; then
     if [ -n "$OPENSSL_TEST" ]; then
         logmsg -h "--- OpenSSL version $opensslver but OPENSSL_TEST is set"

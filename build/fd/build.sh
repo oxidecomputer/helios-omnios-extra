@@ -22,11 +22,6 @@ PKG=ooce/util/fd
 SUMMARY="find utility"
 DESC="fd is a simple, fast and user-friendly alternative to find"
 
-if [ $RELVER -lt 151028 ]; then
-    logmsg "--- $PKG is not built for r$RELVER"
-    exit 0
-fi
-
 BUILD_DEPENDS_IPS=ooce/developer/rust
 
 set_arch 64

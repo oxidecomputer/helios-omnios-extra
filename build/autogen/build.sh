@@ -22,8 +22,6 @@ PKG=ooce/developer/autogen
 SUMMARY="Autogen - automated text and program generation tool"
 DESC="$SUMMARY"
 
-[ $RELVER -lt 151030 ] && exit 0
-
 BUILD_DEPENDS_IPS="ooce/library/guile"
 
 set_arch 64

@@ -40,10 +40,8 @@ CFLAGS+=" -Wno-unknown-pragmas -Wno-unused -fno-inline-functions -m64"
 CFLAGS+=" -mcmodel=kernel -fno-shrink-wrap -g -O2 -fno-inline -ffreestanding"
 CFLAGS+=" -fno-strict-aliasing -Wpointer-arith -gdwarf-2 -std=gnu99"
 CFLAGS+=" -mno-red-zone"
-if [ $RELVER -ge 151032 ]; then
-    # From r151032, the kernel is built with retpolines
-    CFLAGS+=" -mindirect-branch=thunk-extern -mindirect-branch-register"
-fi
+# From r151032, the kernel is built with retpolines
+CFLAGS+=" -mindirect-branch=thunk-extern -mindirect-branch-register"
 export CFLAGS
 
 # No configure

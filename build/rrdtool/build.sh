@@ -22,8 +22,6 @@ PKG=ooce/database/rrdtool
 SUMMARY="Round-Robin Database Tool"
 DESC="High performance data logging and graphing system for time series data."
 
-[ $RELVER -lt 151033 ] && RUN_DEPENDS_IPS+=" runtime/perl-64"
-
 set_arch 64
 
 OPREFIX=$PREFIX

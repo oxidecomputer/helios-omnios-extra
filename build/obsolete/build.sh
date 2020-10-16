@@ -19,11 +19,11 @@
 PROG=conditional-obsolete
 
 PKG=ooce/obsolete/network/socat
-[ $RELVER -ge 151031 ] && publish_manifest "" network-socat.p5t
+publish_manifest "" network-socat.p5t
 PKG=ooce/obsolete/compress/lz4
-[ $RELVER -ge 151035 ] && publish_manifest "" compress-lz4.p5t
+publish_manifest "" compress-lz4.p5t
 PKG=ooce/obsolete/compress/zstd
-[ $RELVER -ge 151035 ] && publish_manifest "" compress-zstd.p5t
+publish_manifest "" compress-zstd.p5t
 
 exit 0
 

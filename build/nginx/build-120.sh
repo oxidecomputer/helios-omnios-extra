@@ -87,19 +87,12 @@ CONFIGURE_OPTS="
 LDFLAGS+=" -L$PREFIX/lib/$ISAPART64 -R$PREFIX/lib/$ISAPART64"
 
 brotli() {
-    if [ $RELVER -ge 151035 ]; then
-        CONFIGURE_OPTS+=" --add-dynamic-module=../ngx_brotli-$BROTLIVER"
-        BUILDDIR=ngx_brotli-$BROTLIVER download_source $PROG/brotli v$BROTLIVER
-        XFORM_ARGS+="
-            -DBROTLI=$BROTLIVER
-            -DBROTLI_ONLY=
-        "
-    else
-        XFORM_ARGS+="
-            -DBROTLI=unused
-            -DBROTLI_ONLY=#
-        "
-    fi
+    CONFIGURE_OPTS+=" --add-dynamic-module=../ngx_brotli-$BROTLIVER"
+    BUILDDIR=ngx_brotli-$BROTLIVER download_source $PROG/brotli v$BROTLIVER
+    XFORM_ARGS+="
+        -DBROTLI=$BROTLIVER
+        -DBROTLI_ONLY=
+    "
 }
 
 copy_man_page() {

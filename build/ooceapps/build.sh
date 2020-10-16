@@ -30,7 +30,6 @@ set_mirror "$OOCEGITHUB/$PROG/releases/download"
 export PATH="/usr/gnu/bin:$PATH"
 
 RUN_DEPENDS_IPS="ooce/application/texlive"
-[ $RELVER -lt 151033 ] && RUN_DEPENDS_IPS+=" runtime/perl-64"
 
 OPREFIX=$PREFIX
 PREFIX+="/$PROG"

@@ -24,8 +24,6 @@ SUMMARY="A ZFS-aware backup script"
 DESC="Take snapshots and transfer them to a second pool, "
 DESC+="potentially on a different box"
 
-[ $RELVER -lt 151033 ] && RUN_DEPENDS_IPS="runtime/perl-64"
-
 OPREFIX=$PREFIX
 PREFIX+="/$PROG"
 

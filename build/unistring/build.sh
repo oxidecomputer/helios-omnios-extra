@@ -23,8 +23,6 @@ SUMMARY="Unicode string manipulation library"
 DESC="$SUMMARY"
 BUILDDIR=lib$PROG-$VER
 
-[ $RELVER -lt 151030 ] && exit 0
-
 XFORM_ARGS="-DPREFIX=${PREFIX#/}"
 
 CONFIGURE_OPTS="

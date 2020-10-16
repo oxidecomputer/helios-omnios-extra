@@ -64,7 +64,7 @@ CONFIGURE_OPTS="
     --enable-rewrite
 "
 
-[ $RELVER -ge 151035 ] && CONFIGURE_OPTS+=" --enable-brotli"
+CONFIGURE_OPTS+=" --enable-brotli"
 
 init
 download_source $PROG httpd $VER
