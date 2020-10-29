@@ -1281,9 +1281,7 @@ EOM
             done
             echo
         ) > $BASE_TMPDIR/lint/pkglintrc
-        [ $RELVER -ge 151033 ] \
-            && _repo="-r $repo -r $IPS_REPO -r $OB_IPS_REPO" \
-            || _repo="-r $repo"
+        _repo="-r $repo -r $IPS_REPO -r $OB_IPS_REPO"
     fi
     echo $c_note
     logcmd -p $PKGLINT -f $BASE_TMPDIR/lint/pkglintrc \
@@ -1393,8 +1391,8 @@ generate_manifest() {
 
     check_symlinks "$DESTDIR"
     if [ -z "$BATCH" ]; then
-        [ $RELVER -ge 151033 -a -z "$SKIP_RTIME_CHECK" ] && check_rtime
-        [ $RELVER -ge 151037 -a -z "$SKIP_SSP_CHECK" ] && check_ssp
+        [ -z "$SKIP_RTIME_CHECK" ] && check_rtime
+        [ -z "$SKIP_SSP_CHECK" ] && check_ssp
     fi
     check_bmi
     logmsg "--- Generating package manifest from $DESTDIR"
@@ -1449,7 +1447,7 @@ make_package() {
     DESCSTR="$DESC"
     [ -n "$FLAVORSTR" ] && DESCSTR="$DESCSTR ($FLAVOR)"
     # Add the local dash-revision if specified.
-    [ $RELVER -ge 151027 ] && PVER=$RELVER.$DASHREV || PVER=$DASHREV.$RELVER
+    PVER=$RELVER.$DASHREV
 
     # Temporary file paths
     P5M_INT=$TMPDIR/${PKGE}.p5m.int
@@ -1510,7 +1508,7 @@ make_package() {
         pkgmeta pkg.description     "$DESCSTR"
         pkgmeta publisher           "$PUBLISHER_EMAIL"
         pkgmeta pkg.human-version   "$VERHUMAN"
-        [ $legacy -eq 1 -a $RELVER -ge 151035 ] \
+        [ $legacy -eq 1 ] \
             && pkgmeta pkg.legacy true
         if [[ $_ARC_SOURCE = *\ * ]]; then
             _asindex=0
@@ -1621,10 +1619,8 @@ make_package() {
         logmsg "$line"
     done
 
-    if [ $RELVER -ge 151031 ]; then
-        logmsg "--- Formatting manifest"
-        logcmd $PKGFMT -s $P5M_FINAL
-    fi
+    logmsg "--- Formatting manifest"
+    logcmd $PKGFMT -s $P5M_FINAL
 
     fgrep -q '$(' $P5M_FINAL \
         && logerr "------ Manifest contains unresolved variables"
@@ -1904,8 +1900,6 @@ install_smf() {
 
 install_inetservices() {
     typeset frag="${1:-services}"
-
-    [ $RELVER -ge 151035 ] || return
 
     pushd $DESTDIR > /dev/null
     logmsg "-- Installing /etc/inet/services fragment - $frag"
