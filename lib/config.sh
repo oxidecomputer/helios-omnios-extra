@@ -68,13 +68,13 @@ LC_TIME=C;      export LC_TIME
 ######################################################################
 
 # Determine release version based on build system
-if [[ "`uname -v`" != omnios-* ]]; then
-	echo "This does not appear to be an OmniOS system."
-    uname -v
-    exit 1
-fi
+#if [[ "`uname -v`" != omnios-* ]]; then
+#	echo "This does not appear to be an OmniOS system."
+#    uname -v
+#    exit 1
+#fi
 RELVER="`head -1 /etc/release | awk '{print $3}' | sed 's/[a-z]//g'`"
-if [[ ! "$RELVER" =~ ^151[0-9]{3}$ ]]; then
+if [[ ! "$RELVER" =~ ^1$ ]]; then
     echo "Unable to determine release version (got $RELVER)"
     exit 1
 fi
