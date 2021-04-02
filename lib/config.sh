@@ -81,7 +81,7 @@ fi
 
 # Default branch
 DASHREV=0
-[ $RELVER -ge 151027 ] && PVER=$RELVER.$DASHREV || PVER=$DASHREV.$RELVER
+PVER=$RELVER.$DASHREV
 
 # Default package publisher
 PKGPUBLISHER=extra.omnios
@@ -232,7 +232,7 @@ GENOFFSETS_CFLAGS="
 "
 
 # Enable CTF by default from r151037 on
-[ $RELVER -ge 151037 ] && CTF_DEFAULT=1
+CTF_DEFAULT=1
 
 # Figure out number of logical CPUs for use with parallel gmake jobs (-j)
 # Default to 1.5*nCPUs as we assume the build machine is 100% devoted to

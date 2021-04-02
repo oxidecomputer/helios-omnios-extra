@@ -404,7 +404,6 @@ init_tools
 
 SSPFLAGS=
 set_ssp() {
-    [ $RELVER -lt 151037 ] && return
     case "$1" in
         none)   SSPFLAGS=; SKIP_SSP_CHECK=1 ;;
         strong) SSPFLAGS="-fstack-protector-strong" ;;

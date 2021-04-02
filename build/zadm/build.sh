@@ -24,11 +24,6 @@ DESC="$PROG - $SUMMARY"
 
 NOVNCVER=1.2.0
 
-if [ $RELVER -le 151036 ]; then
-    logmsg "--- $PKG is not built for r$RELVER"
-    exit 0
-fi
-
 _MIRROR=$MIRROR
 set_mirror "$OOCEGITHUB/$PROG/releases/download"
 
