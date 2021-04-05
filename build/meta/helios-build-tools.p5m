@@ -1,0 +1,40 @@
+set name=pkg.fmri value=pkg://@PKGPUBLISHER@/ooce/helios-build-tools@1,5.11-@PVER@
+set name=pkg.summary value="Extra tools required to build Helios"
+set name=pkg.description value="Extra tools required to build Helios"
+
+depend fmri=developer/omnios-build-tools type=require
+
+depend fmri=ooce/application/tidy type=require
+depend fmri=ooce/compress/pbzip2 type=require
+depend fmri=ooce/compress/pigz type=require
+depend fmri=ooce/developer/ccache type=require
+depend fmri=ooce/developer/cmake type=require
+depend fmri=ooce/developer/cunit type=require
+depend fmri=ooce/developer/ninja type=require
+depend fmri=ooce/developer/rust type=require
+depend fmri=ooce/library/fontconfig type=require
+depend fmri=ooce/library/freetype2 type=require
+depend fmri=ooce/print/cups type=require
+depend fmri=ooce/text/asciidoc type=require
+depend fmri=ooce/text/ripgrep type=require
+depend fmri=ooce/util/fd type=require
+depend fmri=ooce/util/jq type=require
+
+# zstd was moved to core in r151035.
+depend type=require fmri=pkg:/compress/zstd
+
+# These two are required to run the gcc testsuite.
+depend fmri=ooce/developer/autogen type=require
+depend fmri=ooce/developer/dejagnu type=require
+
+# Required to run the bison testsuite from r151033 onwards
+depend fmri=ooce/runtime/ruby-26 type=require
+
+# Required to build openjdk11 from r151035 onwards
+depend fmri=ooce/x11/header/x11-protocols type=require
+depend fmri=ooce/x11/library/libxrandr type=require
+depend fmri=ooce/x11/library/libxtst type=require
+depend fmri=ooce/x11/library/libxt type=require
+
+# Required to build python 3.9 from 3.9.3
+depend fmri=ooce/developer/autoconf-archive type=require

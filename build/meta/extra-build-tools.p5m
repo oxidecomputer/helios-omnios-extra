@@ -1,8 +1,8 @@
-set name=pkg.fmri value=pkg://@PKGPUBLISHER@/ooce/extra-build-tools@11,5.11-@PVER@
-set name=pkg.summary value="Tools required to build OmniOS extra"
-set name=pkg.description value="Tools required to build OmniOS extra"
+set name=pkg.fmri value=pkg://@PKGPUBLISHER@/ooce/extra-build-tools@1,5.11-@PVER@
+set name=pkg.summary value="Tools required to build Helios extra"
+set name=pkg.description value="Tools required to build Helios extra"
 
-depend fmri=ooce/omnios-build-tools type=require
+depend fmri=ooce/helios-build-tools type=require
 
 depend fmri=driver/tuntap type=require
 depend fmri=library/unixodbc type=require
@@ -70,25 +70,16 @@ depend fmri=system/header/header-usb type=require
 depend fmri=system/library/pcap type=require
 
 # lz4 was moved to core in r151035.
-depend type=require-any fmri=pkg:/compress/lz4 fmri=pkg:/ooce/compress/lz4
+depend fmri=pkg:/compress/lz4 type=require
 
 # Required to build x11 libraries from r151035 onwards
-depend fmri=ooce/x11/header/xcb-protocols type=conditional \
-    predicate=release/name@0.5.11-151035
-depend fmri=ooce/x11/header/x11-protocols type=conditional \
-    predicate=release/name@0.5.11-151035
-depend fmri=ooce/x11/library/libxfixes type=conditional \
-    predicate=release/name@0.5.11-151035
-depend fmri=ooce/x11/library/xtrans type=conditional \
-    predicate=release/name@0.5.11-151035
-depend fmri=ooce/x11/library/libx11 type=conditional \
-    predicate=release/name@0.5.11-151035
-depend fmri=ooce/x11/library/libxau type=conditional \
-    predicate=release/name@0.5.11-151035
-depend fmri=ooce/x11/library/libxcb type=conditional \
-    predicate=release/name@0.5.11-151035
+depend fmri=ooce/x11/header/xcb-protocols type=require
+depend fmri=ooce/x11/header/x11-protocols type=require
+depend fmri=ooce/x11/library/libxfixes type=require
+depend fmri=ooce/x11/library/xtrans type=require
+depend fmri=ooce/x11/library/libx11 type=require
+depend fmri=ooce/x11/library/libxau type=require
+depend fmri=ooce/x11/library/libxcb type=require
 
 # Added support to ffmpeg from r151036 onwards
-depend fmri=ooce/multimedia/dav1d type=conditional \
-    predicate=release/name@0.5.11-151036
-
+depend fmri=ooce/multimedia/dav1d type=require
