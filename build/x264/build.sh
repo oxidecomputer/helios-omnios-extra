@@ -44,7 +44,7 @@ MAKE_INSTALL_ARGS="-e INSTALL=$GNUBIN/install"
 
 CFLAGS+=" -O3"
 
-[ $RELVER -ge 151037 ] && LDFLAGS32+=" -lssp_ns"
+LDFLAGS32+=" -lssp_ns"
 LDFLAGS64+=" -R$PREFIX/lib/$ISAPART64"
 
 # we don't want x264 to have a (circular) runtime dependency on ffmpeg
