@@ -72,7 +72,7 @@ CONFIGURE_OPTS_64+="
     --enable-modules
     --enable-overlays=mod
 "
-[ $RELVER -ge 151037 ] && LDFLAGS32+=" -lssp_ns"
+LDFLAGS32+=" -lssp_ns"
 
 MAKE_INSTALL_ARGS+=" STRIP="
 
