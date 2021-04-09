@@ -35,7 +35,7 @@ SKIP_LICENCES=Various
 OPREFIX=$PREFIX
 PREFIX+="/$PROG"
 
-BUILD_DEPENDS_IPS="driver/tuntap compress/lz4"
+BUILD_DEPENDS_IPS="driver/tuntap compress/lz4 ooce/library/openldap"
 RUN_DEPENDS_IPS="driver/tuntap"
 
 XFORM_ARGS="
