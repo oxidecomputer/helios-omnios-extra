@@ -43,7 +43,7 @@ CONFIGURE_OPTS="
     --with-scriptpath=$USRBIN:$OOCEBIN
 "
 
-MAKE_ARGS_WS="BUILD_INFO='\"(OmniOS r$RELVER)\"'"
+MAKE_ARGS_WS="BUILD_INFO='\"(Helios r$RELVER)\"'"
 
 init
 download_source $PROG $PROG $VER
