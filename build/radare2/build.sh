@@ -22,11 +22,6 @@ VER=5.2.1
 SUMMARY="A low-level software forensics tool"
 DESC="$PROG - $SUMMARY"
 
-if [ $RELVER -lt 151034 ]; then
-    logmsg "--- $PKG is not built for r$RELVER"
-    exit 0
-fi
-
 OPREFIX=$PREFIX
 PREFIX+=/$PROG
 
