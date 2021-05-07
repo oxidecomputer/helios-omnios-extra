@@ -1,4 +1,0 @@
-#!/usr/bin/bash
-
-/usr/bin/pkg-config "$@" freetype2
-
