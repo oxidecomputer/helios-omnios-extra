@@ -62,7 +62,7 @@ CONFIGURE_OPTS="
     --shared-openssl
     --shared-zlib
 "
-[ $RELVER -ge 151035 ] && CONFIGURE_OPTS+=" --shared-brotli"
+CONFIGURE_OPTS+=" --shared-brotli"
 
 init
 download_source $PROG $PROG v$VER

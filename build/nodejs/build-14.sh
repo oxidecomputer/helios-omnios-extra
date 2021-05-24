@@ -38,7 +38,7 @@ OPREFIX=$PREFIX
 PREFIX+=/$PROG-$MAJVER
 
 # objdump is needed to build nodejs
-[ $RELVER -ge 151033 ] && TRIPLET=$TRIPLET64 || TRIPLET=$TRIPLET32
+TRIPLET=$TRIPLET64
 PATH+=":/usr/gnu/$TRIPLET/bin"
 
 CXXFLAGS+="-ffunction-sections -fdata-sections"
@@ -62,7 +62,7 @@ CONFIGURE_OPTS="
     --shared-openssl
     --shared-zlib
 "
-[ $RELVER -ge 151035 ] && CONFIGURE_OPTS+=" --shared-brotli"
+CONFIGURE_OPTS+=" --shared-brotli"
 
 init
 download_source $PROG $PROG v$VER
