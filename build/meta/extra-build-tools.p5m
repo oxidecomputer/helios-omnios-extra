@@ -1,4 +1,4 @@
-set name=pkg.fmri value=pkg://@PKGPUBLISHER@/ooce/extra-build-tools@1,5.11-@PVER@
+set name=pkg.fmri value=pkg://@PKGPUBLISHER@/ooce/extra-build-tools@2,5.11-@PVER@
 set name=pkg.summary value="Tools required to build Helios extra"
 set name=pkg.description value="Tools required to build Helios extra"
 
@@ -8,8 +8,6 @@ depend fmri=driver/tuntap type=require
 depend fmri=library/unixodbc type=require
 depend fmri=ooce/application/graphviz type=require
 depend fmri=ooce/application/imagemagick type=require
-depend fmri=ooce/application/php-73 type=require
-depend fmri=ooce/application/php-74 type=require
 depend fmri=ooce/audio/flac type=require
 depend fmri=ooce/database/bdb type=require
 depend fmri=ooce/database/lmdb type=require
@@ -58,12 +56,10 @@ depend fmri=ooce/library/serf type=require
 depend fmri=ooce/library/slang type=require
 depend fmri=ooce/library/tiff type=require
 depend fmri=ooce/library/unbound type=require
-depend fmri=ooce/multimedia/ffmpeg type=require
 depend fmri=ooce/multimedia/x264 type=require
 depend fmri=ooce/multimedia/x265 type=require
 depend fmri=ooce/runtime/node-12 type=require
 depend fmri=ooce/runtime/ruby-27 type=require
-depend fmri=ooce/server/apache-24 type=require
 depend fmri=ooce/text/docbook-xsl type=require
 depend fmri=system/header/header-agp type=require
 depend fmri=system/header/header-usb type=require
