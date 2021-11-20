@@ -30,6 +30,7 @@ SKIP_LICENCES=Kitware
 MAKE=$NINJA
 
 CONFIGURE_OPTS_64="
+    --system-curl
     --prefix=$PREFIX
     --generator=Ninja
 "
