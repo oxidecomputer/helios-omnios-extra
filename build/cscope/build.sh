@@ -29,6 +29,13 @@ DESC+="projects involving 20 million lines of code!"
 
 set_arch 64
 
+#
+# XXX This apparently has an effect on the way cscope finds symbols in files,
+# and the lex (rather than flex?) implementation is anecdotally better for use
+# with illumos-gate.
+#
+export LEX=/bin/lex
+
 init
 download_source $PROG $PROG $VER
 patch_source
