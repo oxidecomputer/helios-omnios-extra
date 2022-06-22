@@ -18,7 +18,7 @@
 
 PROG=go
 PKG=ooce/developer/go-117
-VER=1.17.3
+VER=1.17.11
 SUMMARY="The Go Programming Language"
 DESC="An open source programming language that makes it easy to build simple, "
 DESC+="reliable, and efficient software."
@@ -29,7 +29,7 @@ BUILDDIR=$PROG
 ((GCCVER == 11)) && set_gccver 10
 
 set_arch 64
-set_gover 1.16
+set_gover 1.17
 
 MAJVER=`echo $VER | perl -pe '($_) = /(\d+\.\d+)/'`
 sMAJVER=${MAJVER//./}
