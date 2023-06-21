@@ -21,7 +21,6 @@ depend fmri=ooce/developer/gperf type=require
 depend fmri=ooce/developer/llvm-13 type=require
 depend fmri=ooce/developer/llvm-14 type=require
 depend fmri=ooce/developer/clang-13 type=require
-depend fmri=ooce/developer/subversion type=require
 depend fmri=ooce/developer/yasm type=require
 depend fmri=ooce/developer/zig type=require
 depend fmri=ooce/editor/emacs type=require
@@ -72,7 +71,6 @@ depend fmri=ooce/multimedia/x264 type=require
 depend fmri=ooce/multimedia/x265 type=require
 depend fmri=ooce/runtime/node-16 type=require
 depend fmri=ooce/runtime/ruby-30 type=require
-depend fmri=ooce/server/apache-24 type=require
 depend fmri=ooce/text/docbook-xsl type=require
 depend fmri=system/header/header-agp type=require
 depend fmri=system/header/header-ugen type=require
