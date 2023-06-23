@@ -25,7 +25,7 @@ DESC+="availability environments."
 
 set_arch 64
 
-BUILD_DEPENDS_IPS="library/security/openssl library/pcre2"
+BUILD_DEPENDS_IPS="library/security/openssl-3 library/pcre2"
 
 XFORM_ARGS="
     -DPREFIX=${PREFIX#/}

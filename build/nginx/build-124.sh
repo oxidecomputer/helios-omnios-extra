@@ -40,7 +40,7 @@ LOGPATH=/var/log$OPREFIX/$PROG
 VARPATH=/var$OPREFIX/$PROG
 RUNPATH=$VARPATH/run
 
-BUILD_DEPENDS_IPS="library/security/openssl library/pcre2"
+BUILD_DEPENDS_IPS="library/security/openssl-3 library/pcre2"
 RUN_DEPENDS_IPS="ooce/server/nginx-common"
 
 XFORM_ARGS="
