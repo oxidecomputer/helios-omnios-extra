@@ -62,22 +62,21 @@ LC_TIME=C;      export LC_TIME
 ######################################################################
 
 # Determine release version based on build system
-if [[ "`uname -v`" != omnios-* ]]; then
-	echo "This does not appear to be an OmniOS system."
-    uname -v
-    exit 1
-fi
 RELVER="`head -1 /etc/release | awk '{print $3}' | sed 's/[a-z]//g'`"
-if [[ ! "$RELVER" =~ ^151[0-9]{3}$ ]]; then
+if [[ ! "$RELVER" =~ ^2$ ]]; then
     echo "Unable to determine release version (got $RELVER)"
     exit 1
 fi
+
+# For helios, we use 151046 as the RELVER that is used for feature detection in
+# various places.
+upstream_RELVER=151046
 
 # This is here so that it can be overidden in site.sh
 test_relver() {
     typeset op="${1:?op}"
     typeset ver="${2:?ver}"
-    typeset testver="$RELVER"
+    typeset testver="$upstream_RELVER"
 
     case "$op" in
         ">")    ((testver > ver)) ;;
@@ -95,11 +94,11 @@ SUNOSVER=`uname -r`
 DASHREV=0
 PVER=$RELVER.$DASHREV
 
-DISTRO=OmniOS
-DISTRO_LONG="OmniOS Community Edition"
-HOMEURL=https://omnios.org
+DISTRO=Helios
+DISTRO_LONG="Oxide Helios"
+HOMEURL=https://oxide.computer
 # Default package publisher
-PKGPUBLISHER=extra.omnios
+PKGPUBLISHER=helios-dev
 
 # Supported architectures, and the default set.
 ARCH_LIST="i386 amd64 aarch64"
@@ -343,7 +342,7 @@ CC=gcc
 CXX=g++
 
 # Specify default GCC version for building packages
-case $RELVER in
+case $upstream_RELVER in
     15102[12])          DEFAULT_GCC_VER=5.1.0; ILLUMOS_GCC_VER=4.4.4 ;;
     15102[34])          DEFAULT_GCC_VER=5 ;;
     15102[56])          DEFAULT_GCC_VER=6 ;;
@@ -360,7 +359,7 @@ case $RELVER in
 esac
 
 # Specify default clang version for building packages
-case $RELVER in
+case $upstream_RELVER in
     15104[3-4])         DEFAULT_CLANG_VER=14 ;;
     15104[5-6])         DEFAULT_CLANG_VER=15 ;;
     15104[7-9])         DEFAULT_CLANG_VER=16 ;;
@@ -372,7 +371,7 @@ DEFAULT_NODE_VER=16
 DEFAULT_RUBY_VER=3.0
 
 PYTHON2VER=2.7
-case $RELVER in
+case $upstream_RELVER in
     15103[3-6])         PYTHON3VER=3.7 ;;
     15103[7-9])         PYTHON3VER=3.9 ;;
     151040)             PYTHON3VER=3.9 ;;
