@@ -1,6 +1,0 @@
-config.h.in.patch
-minidlna.conf.patch
-minissdp.c.patch
-monitor.c.patch
-icons.c.patch
-select_use_after_free.patch
