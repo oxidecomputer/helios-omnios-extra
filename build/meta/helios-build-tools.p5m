@@ -1,21 +1,18 @@
-set name=pkg.fmri value=pkg://$(PKGPUBLISHER)/ooce/omnios-build-tools@11,$(SUNOSVER)-$(PVER)
-set name=pkg.summary value="Extra tools required to build OmniOS"
-set name=pkg.description value="Extra tools required to build OmniOS"
+set name=pkg.fmri value=pkg://$(PKGPUBLISHER)/ooce/helios-build-tools@2,$(SUNOSVER)-$(PVER)
+set name=pkg.summary value="Extra tools required to build Helios"
+set name=pkg.description value="Extra tools required to build Helios"
 
 depend fmri=developer/omnios-build-tools type=require
 
 depend fmri=ooce/application/tidy type=require
 depend fmri=ooce/compress/pbzip2 type=require
 depend fmri=ooce/compress/pigz type=require
-depend fmri=ooce/developer/autoconf-archive type=require
 depend fmri=ooce/developer/ccache type=require
 depend fmri=ooce/developer/cmake type=require
-depend fmri=ooce/developer/cunit type=require
 depend fmri=ooce/developer/ninja type=require
 depend fmri=ooce/developer/rust type=require
 depend fmri=ooce/library/fontconfig type=require
 depend fmri=ooce/library/freetype2 type=require
-depend fmri=ooce/print/cups type=require
 depend fmri=ooce/text/asciidoc type=require
 depend fmri=ooce/text/ripgrep type=require
 depend fmri=ooce/text/texinfo type=require
@@ -31,7 +28,7 @@ depend fmri=ooce/developer/autogen type=require
 depend fmri=ooce/developer/dejagnu type=require
 
 # zstd was moved to core in r151035.
-depend type=require-any fmri=pkg:/compress/zstd fmri=pkg:/ooce/compress/zstd
+depend type=require-any fmri=pkg:/compress/zstd
 
 # Required to run the bison testsuite
 depend type=require-any fmri=ooce/runtime/ruby-27 fmri=ooce/runtime/ruby-30 \
