@@ -16,6 +16,7 @@ depend fmri=ooce/developer/go-119 type=require
 depend fmri=ooce/developer/go-120 type=require
 depend fmri=ooce/developer/gperf type=require
 depend fmri=ooce/developer/llvm-14 type=require
+depend fmri=ooce/developer/protobuf type=require
 depend fmri=ooce/developer/yasm type=require
 depend fmri=ooce/developer/zig type=require
 depend fmri=ooce/editor/emacs type=require
