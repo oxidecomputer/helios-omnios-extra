@@ -12,13 +12,13 @@
 # http://www.illumos.org/license/CDDL.
 # }}}
 
-# Copyright 2023 OmniOS Community Edition (OmniOSce) Association.
+# Copyright 2024 OmniOS Community Edition (OmniOSce) Association.
 
 . ../../lib/build.sh
 
 PROG=rust
 PKG=ooce/developer/rust
-VER=1.69.0
+VER=1.78.0
 SUMMARY="Rust systems programming language"
 DESC="Rust is a systems programming language that runs blazingly fast, "
 DESC+="prevents segfaults, and guarantees thread safety."
@@ -32,6 +32,9 @@ OPREFIX=$PREFIX
 PREFIX+=/$PROG
 
 BUILD_DEPENDS_IPS="developer/gnu-binutils"
+# `rustc` uses `gcc` as its linker. Other dependencies such as the C runtime
+# and linker are themselves pulled in as dependencies of the gcc package.
+RUN_DEPENDS_IPS="developer/gcc$GCCVER"
 
 if test_relver '<' 151041; then
     SYSTEM_LLVM_PATH="/opt/ooce/llvm-$LLVMVER"
