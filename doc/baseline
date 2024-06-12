@@ -166,6 +166,7 @@ extra.omnios ooce/library/security/libsasl2
 extra.omnios ooce/library/serf
 extra.omnios ooce/library/slang
 extra.omnios ooce/library/tiff
+extra.omnios ooce/library/tree-sitter
 extra.omnios ooce/library/unbound
 extra.omnios ooce/library/unistring
 extra.omnios ooce/multimedia/dav1d
@@ -250,6 +251,7 @@ extra.omnios ooce/text/docbook-xsl
 extra.omnios ooce/text/hunspell
 extra.omnios ooce/text/ripgrep
 extra.omnios ooce/text/texinfo
+extra.omnios ooce/text/tree-sitter-langs
 extra.omnios ooce/text/xsv
 extra.omnios ooce/util/acmefetch
 extra.omnios ooce/util/bat
