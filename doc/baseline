@@ -254,6 +254,7 @@ extra.omnios ooce/text/texinfo
 extra.omnios ooce/text/tree-sitter-langs
 extra.omnios ooce/text/xsv
 extra.omnios ooce/util/acmefetch
+extra.omnios ooce/util/atuin
 extra.omnios ooce/util/bat
 extra.omnios ooce/util/diffr
 extra.omnios ooce/util/direnv
