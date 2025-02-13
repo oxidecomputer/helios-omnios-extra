@@ -366,7 +366,7 @@ case $upstream_RELVER in
     *)                  DEFAULT_CLANG_VER=13 ;;
 esac
 
-DEFAULT_GO_VER=1.21
+DEFAULT_GO_VER=1.23
 DEFAULT_NODE_VER=18
 DEFAULT_RUBY_VER=3.0
 
