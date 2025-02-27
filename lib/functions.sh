@@ -1393,7 +1393,8 @@ download_source() {
     local FILENAME
 
     local ARCHIVEPREFIX="$PROG"
-    [ -n "$VER" ] && ARCHIVEPREFIX+="-$VER"
+    [ -z "$VERSEP" ] && VERSEP="-"
+    [ -n "$VER" ] && ARCHIVEPREFIX+="$VERSEP""$VER"
     [ -z "$TARGETDIR" ] && TARGETDIR="$TMPDIR"
 
     # Create TARGETDIR if it doesn't exist
