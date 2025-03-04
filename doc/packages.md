@@ -92,6 +92,7 @@
 | ooce/file/lsof		| 4.95.0	| https://github.com/lsof-org/lsof/releases | [omniosorg](https://github.com/omniosorg)
 | ooce/file/tree		| 2.1.1		| http://mama.indstate.edu/users/ice/tree/ | [omniosorg](https://github.com/omniosorg)
 | ooce/fonts/liberation		| 2.1.5		| https://github.com/liberationfonts/liberation-fonts/releases | [omniosorg](https://github.com/omniosorg)
+| ooce/library/abseil		| 20240116.3	| https://github.com/abseil/abseil-cpp/releases/ | [oxidecomputer](https://github.com/oxidecomputer)
 | ooce/library/apr		| 1.7.4 	| https://downloads.apache.org/apr/ | [omniosorg](https://github.com/omniosorg)
 | ooce/library/apr-util		| 1.6.3		| https://downloads.apache.org/apr/ | [omniosorg](https://github.com/omniosorg)
 | ooce/library/bdw-gc		| 8.2.2		| https://www.hboehm.info/gc/gc_source/ | [omniosorg](https://github.com/omniosorg)
