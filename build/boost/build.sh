@@ -23,24 +23,25 @@ SUMMARY="boost"
 DESC="Widely used collection of c++ libraries"
 
 SKIP_LICENCES=bsl
-BUILDARCH=amd64
 
+OPREFIX=$PREFIX
 PREFIX+="/$PROG"
 
+VERNAME=${VER//./_}
+set_arch 64
+set_builddir boost_$VERNAME
+
 build() {
-    cd $TMPDIR/$BUILDDIR
-    ./bootstrap.sh --prefix=$DESTDIR/$PREFIX
-    ./b2 link=static runtime-link=static install
+    pushd $TMPDIR/$BUILDDIR >/dev/null \
+        || logerr "Cannot change to $TMPDIR/$BUILDDIR"
+    logcmd ./bootstrap.sh --prefix=$DESTDIR/$PREFIX || logerr "bootstrap failed"
+    logcmd ./b2 link=static runtime-link=static install || logerr "build failed"
+    popd >/dev/null
 }
 
-set_mirror archives.boost.io
-VERNAME=`echo $VER | sed "s/\./_/g"`
-VERSEP="_"
-CHECKSUM_VALUE=sha256:af57be25cb4c4f4b413ed692fe378affb4352ea50fbe294a11ef548f4d527d89
-BUILDDIR=boost_$VERNAME
-
 init
-download_source release/$VER/source boost $VERNAME
+download_source boost boost_$VERNAME
+patch_source
 prep_build
 build
 make_package
