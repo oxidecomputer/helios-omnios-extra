@@ -83,7 +83,6 @@ extra.omnios ooce/developer/dejagnu
 extra.omnios ooce/developer/flamegraph
 extra.omnios ooce/developer/freepascal
 extra.omnios ooce/developer/gdb
-extra.omnios ooce/developer/go-121
 extra.omnios ooce/developer/go-122
 extra.omnios ooce/developer/go-123
 extra.omnios ooce/developer/gperf
