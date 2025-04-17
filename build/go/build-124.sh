@@ -12,19 +12,19 @@
 # http://www.illumos.org/license/CDDL.
 # }}}
 
-# Copyright 2023 OmniOS Community Edition (OmniOSce) Association.
+# Copyright 2025 OmniOS Community Edition (OmniOSce) Association.
 
 . ../../lib/build.sh
 
 PROG=go
-PKG=ooce/developer/go-117
-VER=1.17.13
+PKG=ooce/developer/go-124
+VER=1.24.2
 SUMMARY="The Go Programming Language"
 DESC="An open source programming language that makes it easy to build simple, "
 DESC+="reliable, and efficient software."
 
 set_arch 64
-set_gover 1.17
+set_gover
 set_builddir $PROG
 
 MAJVER=`echo $VER | perl -pe '($_) = /(\d+\.\d+)/'`

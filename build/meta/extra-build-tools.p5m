@@ -12,8 +12,7 @@ depend fmri=ooce/application/imagemagick type=require
 depend fmri=ooce/database/lmdb type=require
 depend fmri=ooce/developer/cargo-c type=require
 depend fmri=ooce/developer/gdb type=require
-depend fmri=ooce/developer/go-121 type=require
-depend fmri=ooce/developer/go-122 type=require
+depend fmri=ooce/developer/go-123 type=require
 depend fmri=ooce/developer/gperf type=require
 depend fmri=ooce/developer/llvm-14 type=require
 depend fmri=ooce/developer/protobuf type=require
