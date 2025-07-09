@@ -42,7 +42,7 @@ VARPATH=/var$PREFIX
 RUNPATH=$VARPATH/run
 export NGX_ACME_STATE_PREFIX=$VARPATH/acmecache
 
-BUILD_DEPENDS_IPS="library/security/openssl library/pcre2"
+BUILD_DEPENDS_IPS="library/security/openssl-3 library/pcre2"
 RUN_DEPENDS_IPS="ooce/server/nginx-common"
 
 XFORM_ARGS="
