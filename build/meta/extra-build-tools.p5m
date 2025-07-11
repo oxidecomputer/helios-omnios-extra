@@ -9,29 +9,18 @@ depend fmri=developer/dtc type=require
 depend fmri=driver/tuntap type=require
 depend fmri=library/unixodbc type=require
 depend fmri=network/socat type=require
-depend fmri=ooce/application/imagemagick type=require
-depend fmri=ooce/application/php-82 type=require
-depend fmri=ooce/application/php-83 type=require
-depend fmri=ooce/application/php-84 type=require
-depend fmri=ooce/application/php-85 type=require
 depend fmri=ooce/audio/flac type=require
 depend fmri=ooce/audio/opus type=require
 depend fmri=ooce/database/bdb type=require
 depend fmri=ooce/database/lmdb type=require
-depend fmri=ooce/developer/cargo-c type=require
-depend fmri=ooce/developer/freepascal type=require
 depend fmri=ooce/developer/gdb type=require
 depend fmri=ooce/developer/go-125 type=require
 depend fmri=ooce/developer/gperf type=require
-depend fmri=ooce/developer/llvm-13 type=require
-depend fmri=ooce/developer/llvm-17 type=require
-depend fmri=ooce/developer/clang-13 type=require
-depend fmri=ooce/developer/clang-17 type=require
+depend fmri=ooce/developer/llvm-15 type=require
+depend fmri=ooce/developer/clang-15 type=require
 depend fmri=ooce/developer/protobuf type=require
 depend fmri=ooce/developer/protobuf-c type=require
-depend fmri=ooce/developer/subversion type=require
 depend fmri=ooce/developer/yasm type=require
-depend fmri=ooce/editor/emacs type=require
 depend fmri=ooce/fonts/liberation type=require
 depend fmri=ooce/library/apr type=require
 depend fmri=ooce/library/apr-util type=require
@@ -70,11 +59,6 @@ depend fmri=ooce/library/openldap type=require
 depend fmri=ooce/library/pango type=require
 depend fmri=ooce/library/pixman type=require
 depend fmri=ooce/library/popt type=require
-depend fmri=ooce/library/postgresql-13 type=require
-depend fmri=ooce/library/postgresql-14 type=require
-depend fmri=ooce/library/postgresql-15 type=require
-depend fmri=ooce/library/postgresql-16 type=require
-depend fmri=ooce/library/postgresql-17 type=require
 depend fmri=ooce/library/postgresql-18 type=require
 depend fmri=ooce/library/security/libsasl2 type=require
 depend fmri=ooce/library/serf type=require
@@ -86,14 +70,9 @@ depend fmri=ooce/library/unbound type=require
 depend fmri=ooce/library/unistring type=require
 depend fmri=ooce/library/yaml type=require
 depend fmri=ooce/multimedia/dav1d type=require
-depend fmri=ooce/multimedia/ffmpeg type=require
 depend fmri=ooce/multimedia/rav1e type=require
 depend fmri=ooce/multimedia/x264 type=require
 depend fmri=ooce/multimedia/x265 type=require
-depend fmri=ooce/runtime/node-22 type=require
-depend fmri=ooce/runtime/node-24 type=require
-depend fmri=ooce/runtime/ruby-30 type=require
-depend fmri=ooce/runtime/ruby-34 type=require
 depend fmri=ooce/server/apache-24 type=require
 depend fmri=ooce/text/docbook-xsl type=require
 depend fmri=ooce/util/getopt type=require
@@ -109,48 +88,4 @@ depend fmri=ooce/x11/library/xtrans type=require
 depend fmri=ooce/x11/library/libx11 type=require
 depend fmri=ooce/x11/library/libxau type=require
 depend fmri=ooce/x11/library/libxcb type=require
-
-# Added llvm/clang 15 from r151043 onwards
-depend fmri=ooce/developer/llvm-15 type=conditional \
-    predicate=release/name@0.5.11-151043
-
-# clang 15 is the default clang compiler from r151045 onwards
-depend fmri=ooce/developer/clang-15 type=conditional \
-    predicate=release/name@0.5.11-151045
-
-# Added llvm/clang 18 from r151049 onwards
-depend fmri=ooce/developer/llvm-18 type=conditional \
-    predicate=release/name@0.5.11-151049
-
-# clang 18 is required to build zig 0.13
-depend fmri=ooce/developer/clang-18 type=conditional \
-    predicate=release/name@0.5.11-151049
-
-# Added llvm/clang 19 from r151051 onwards
-depend fmri=ooce/developer/llvm-19 type=conditional \
-    predicate=release/name@0.5.11-151051
-
-# clang 19 is required to build zig 0.14
-depend fmri=ooce/developer/clang-19 type=conditional \
-    predicate=release/name@0.5.11-151052
-
-# zig 0.14 is required to build ncdu 2.8.2+
-depend fmri=ooce/developer/zig-014 type=conditional \
-    predicate=release/name@0.5.11-151052
-
-# Added llvm/clang 20 from r151053 onwards
-depend fmri=ooce/developer/llvm-20 type=conditional \
-    predicate=release/name@0.5.11-151053
-
-# clang 20 is required to build zig 0.15
-depend fmri=ooce/developer/clang-20 type=conditional \
-    predicate=release/name@0.5.11-151054
-
-# Added llvm/clang 21 from r151055 onwards
-depend fmri=ooce/developer/llvm-21 type=conditional \
-    predicate=release/name@0.5.11-151055
-
-# clang 21 is the default clang compiler from r151057 onwards
-depend fmri=ooce/developer/clang-21 type=conditional \
-    predicate=release/name@0.5.11-151057
 
