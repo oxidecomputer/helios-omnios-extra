@@ -32,7 +32,7 @@ CONFIGURE_OPTS="
     --disable-static
 "
 
-CPPFLAGS+=" -DOOCEVER=$RELVER"
+CPPFLAGS+=" -DOOCEVER=$OOCEVER"
 
 init
 download_source $PROG v$VER

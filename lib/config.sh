@@ -62,22 +62,21 @@ LC_TIME=C;      export LC_TIME
 ######################################################################
 
 # Determine release version based on build system
-if [[ "`uname -v`" != omnios-* ]]; then
-	echo "This does not appear to be an OmniOS system."
-    uname -v
-    exit 1
-fi
 RELVER="`head -1 /etc/release | awk '{print $3}' | sed 's/[a-z]//g'`"
-if [[ ! "$RELVER" =~ ^151[0-9]{3}$ ]]; then
+if [[ ! "$RELVER" =~ ^3$ ]]; then
     echo "Unable to determine release version (got $RELVER)"
     exit 1
 fi
+
+# For helios, we use 151054 as the version that is used for feature detection
+# in various places.
+OOCEVER=151054
 
 # This is here so that it can be overidden in site.sh
 test_relver() {
     typeset op="${1:?op}"
     typeset ver="${2:?ver}"
-    typeset testver="$RELVER"
+    typeset testver="$OOCEVER"
 
     case "$op" in
         ">")    ((testver > ver)) ;;
@@ -95,12 +94,12 @@ SUNOSVER=`uname -r`
 DASHREV=0
 PVER=$RELVER.$DASHREV
 
-DISTRO=OmniOS
+DISTRO=Helios
 DISTRO_LC=${DISTRO,,}
-DISTRO_LONG="OmniOS Community Edition"
-HOMEURL=https://omnios.org
+DISTRO_LONG="Oxide Helios"
+HOMEURL=https://oxide.computer
 # Default package publisher
-PKGPUBLISHER=extra.omnios
+PKGPUBLISHER=helios-dev
 
 # Supported architectures, and the default set.
 ARCH_LIST="i386 amd64 aarch64"
@@ -134,13 +133,8 @@ MIRROR=$SRCMIRROR
 
 # The production IPS repository for this branch (may be overridden in site.sh)
 # Used for package contents diffing.
-if [ $((RELVER % 2)) == 0 ]; then
-    IPS_REPO=https://pkg.omnios.org/r$RELVER/extra
-    OB_IPS_REPO=https://pkg.omnios.org/r$RELVER/core
-else
-    IPS_REPO=https://pkg.omnios.org/bloody/extra
-    OB_IPS_REPO=https://pkg.omnios.org/bloody/core
-fi
+IPS_REPO=https://pkg.oxide.computer/helios/$RELVER/dev
+OB_IPS_REPO=$IPS_REPO
 BRAICH_REPO=https://pkg.omnios.org/bloody/braich
 
 ARCHIVE_TYPES="tar.zst tar.xz tar.bz2 tar.lz tar.gz tgz tar zip"
@@ -359,7 +353,7 @@ CC=gcc
 CXX=g++
 
 # Specify default GCC version for building packages
-case $RELVER in
+case $OOCEVER in
     15102[12])          DEFAULT_GCC_VER=5.1.0; ILLUMOS_GCC_VER=4.4.4 ;;
     15102[34])          DEFAULT_GCC_VER=5 ;;
     15102[56])          DEFAULT_GCC_VER=6 ;;
@@ -373,11 +367,11 @@ case $RELVER in
     15104[3-6])         DEFAULT_GCC_VER=12; ILLUMOS_GCC_VER=10 ;;
     15104[7-9]|151050)  DEFAULT_GCC_VER=13; ILLUMOS_GCC_VER=10 ;;
     15105[1-9])         DEFAULT_GCC_VER=14; ILLUMOS_GCC_VER=10 ;;
-    *) logerr "Unknown release '$RELVER', can't select compiler." ;;
+    *) logerr "Unknown release '$OOCEVER', can't select compiler." ;;
 esac
 
 # Specify default clang version for building packages
-case $RELVER in
+case $OOCEVER in
     15104[3-4])         DEFAULT_CLANG_VER=14 ;;
     15104[5-6])         DEFAULT_CLANG_VER=15 ;;
     15104[7-8])         DEFAULT_CLANG_VER=16 ;;
@@ -395,7 +389,7 @@ DEFAULT_RUBY_VER=3.4
 DEFAULT_ZIG_VER=0.14
 
 PYTHON2VER=2.7
-case $RELVER in
+case $OOCEVER in
     15103[3-6])         PYTHON3VER=3.7 ;;
     15103[7-9])         PYTHON3VER=3.9 ;;
     151040)             PYTHON3VER=3.9 ;;
