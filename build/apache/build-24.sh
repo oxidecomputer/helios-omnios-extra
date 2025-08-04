@@ -12,22 +12,25 @@
 # http://www.illumos.org/license/CDDL.
 # }}}
 
-# Copyright 2023 OmniOS Community Edition (OmniOSce) Association.
+# Copyright 2025 OmniOS Community Edition (OmniOSce) Association.
 
 . ../../lib/build.sh
 
 PROG=apache
 PKG=ooce/server/apache-24
-VER=2.4.57
+VER=2.4.63
 MAJVER=${VER%.*}            # M.m
 sMAJVER=${MAJVER//./}       # Mm
 SUMMARY="Apache httpd $MAJVER"
 DESC="The Apache HTTP Server Project web server, version $MAJVER"
 
 set_arch 64
+test_relver '>=' 151051 && set_clangver
 set_builddir httpd-$VER
 
 set_patchdir patches-$sMAJVER
+
+RUN_DEPENDS_IPS="ooce/server/webservd-common"
 
 OPREFIX=$PREFIX
 PREFIX+=/$PROG-$MAJVER
@@ -67,6 +70,8 @@ CONFIGURE_OPTS="
     --with-jansson="$OPREFIX"
     --enable-md
 "
+
+LDFLAGS[amd64]+=" -Wl,-R$OPREFIX/${LIBDIRS[amd64]}"
 
 init
 download_source $PROG httpd $VER

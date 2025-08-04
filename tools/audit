@@ -233,23 +233,12 @@ audit()
                 0)  c="$c_highlight" ;;
                 1)  c="$c_error"
                     case $pkg:$pver in
-                        # node-18 is not published until r151041
-                        */node-18:) [ $r -lt 151041 ] || ok=0 ;;
-                        # clang is not published until r151041
-                        */clang-14:) [ $r -lt 151041 ] || ok=0 ;;
-                        # clang/llvm-15 are not published until r151043
-                        */clang-15:|*/llvm-15:) [ $r -lt 151043 ] || ok=0 ;;
-                        # clang/llvm-16 are not published until r151045
-                        */clang-16:|*/llvm-16:) [ $r -lt 151045 ] || ok=0 ;;
-                        # qemu and tailscale are not published until r151044
-                        */qemu:|*/tailscale:) [ $r -lt 151044 ] || ok=0 ;;
-                        # helix, mariadb-1011 and hunspell
-                        # are not published until r151042
-                        */helix:|*/mariadb-1011:|*/hunspell:)
-                            [ $r -lt 151042 ] || ok=0 ;;
-                        # aarch64 cross build tools are
-                        # not published until r151045
-                        */aarch64-*:) [ $r -lt 151045 ] || ok=0 ;;
+                        # clang/llvm-18 are not published until r151049
+                        */clang-18:|*/llvm-18:|*/zig-013:) [ $r -lt 151049 ] || ok=0 ;;
+                        # clang/llvm-19 are not published until r151051
+                        */clang-19:|*/llvm-19:) [ $r -lt 151051 ] || ok=0 ;;
+                        # clang/llvm-20 are not published until r151053
+                        */clang-20:|*/llvm-20:) [ $r -lt 151053 ] || ok=0 ;;
                         *) ok=0 ;;
                     esac
                     ;;

@@ -3,8 +3,9 @@
 > **Warning**
 >
 > There is no guarantee that packages in this repository build correctly on
-> OmniOS releases earlier than **r151038**. If you wish to build on older
-> releases, check out the `pre-r151038` tag.
+> OmniOS releases earlier than **r151046**. If you wish to build on older
+> releases, check out the `pre-r151046` tag (or the `pre-r151038` tag respectively
+> if you want to build on releases earlier than **r151038**).
 
 ## Introduction
 The purpose of this document is to introduce building packages for the "OmniOS
@@ -738,20 +739,26 @@ packages. In the early stages of a build, this source tarball will not be
 available on the OmniOS mirror, and will be need to be made available for the
 build process.
 
-This can be done by using the `set_mirror` directive in `build.sh`. For example
-the source tarball for "Apache httpd 2.4.43" is available at the mirror:
-<https://downloads.apache.org/>. Therefore the `set_mirror` directive should be
-as follows:
+The easiest way to do this is to use `build.sh`'s `-M` option to temporarily
+point at either the original distribution site, or to a temporary directory.
 
-```none
-set_mirror "https://downloads.apache.org/"
-```
-Further in the `build.sh` file, the `download_source` directive should be as
-follows:
+For example the source tarball for "Apache httpd 2.4.43" is available at the
+mirror: <https://downloads.apache.org/>. Therefore `build.sh` can be run as:
 
-```none
-download_source $PROG $PROG $VER
+```bash
+$ ./build.sh -M https://downloads.apache.org/
 ```
+
+or, if you download `httpd-2.4.43.tar.bz2` and place it in `/tmp/apache`:
+
+```bash
+$ ./build.sh -M /tmp
+```
+
+If the download fails, look at `build.log` to determine the pathnames that
+were tried, and adjust accordingly.
+
+The mirror can also be changed permanently in `lib/site.sh`.
 
 #### Checksums:
 
@@ -1147,7 +1154,7 @@ git push origin master
 ### OmniOS community support channels
 
 * **Gitter:** Connect to the web-based [chat room on Gitter](https://gitter.im/omniosorg/Lobby).
-* **IRC:**  Join the [#omnios channel on Freenode](http://webchat.freenode.net/?randomnick=1&channels=%23omnios&uio=d4).
+* **IRC:**  Join the [#omnios channel on Libera](https://web.libera.chat/#omnios).
 * **Mailing list:** general discussion and queries, please subscribe to the [omnios-discuss mailing list](https://illumos.topicbox.com/groups/omnios-discuss).
 
 ### Recommended reading

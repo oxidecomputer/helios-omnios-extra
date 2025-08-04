@@ -1,4 +1,4 @@
-diff -wpruN '--exclude=*.orig' a~/Makefile a/Makefile
+diff -wpruN --no-dereference '--exclude=*.orig' a~/Makefile a/Makefile
 --- a~/Makefile	1970-01-01 00:00:00
 +++ a/Makefile	1970-01-01 00:00:00
 @@ -1,6 +1,6 @@
@@ -9,9 +9,9 @@ diff -wpruN '--exclude=*.orig' a~/Makefile a/Makefile
  
  GOARCH := $(shell go env GOARCH)
  GOOS := $(shell go env GOOS)
-@@ -108,7 +108,7 @@ verify-healing-inconsistent-versions: ##
+@@ -180,7 +180,7 @@ build-debugging:
  
- build: checks ## builds minio to $(PWD)
+ build: checks build-debugging ## builds minio to $(PWD)
  	@echo "Building minio binary to './minio'"
 -	@CGO_ENABLED=0 go build -tags kqueue -trimpath --ldflags "$(LDFLAGS)" -o $(PWD)/minio 1>/dev/null
 +	@CGO_ENABLED=1 go build -tags kqueue -trimpath --ldflags "$(LDFLAGS)" -o $(PWD)/minio 1>/dev/null

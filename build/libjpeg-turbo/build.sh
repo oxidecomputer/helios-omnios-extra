@@ -12,12 +12,12 @@
 # http://www.illumos.org/license/CDDL.
 # }}}
 
-# Copyright 2023 OmniOS Community Edition (OmniOSce) Association.
+# Copyright 2024 OmniOS Community Edition (OmniOSce) Association.
 
 . ../../lib/build.sh
 
 PROG=libjpeg-turbo
-VER=3.0.0
+VER=3.0.1
 PKG=ooce/library/libjpeg-turbo
 SUMMARY="libjpeg-turbo"
 DESC="SIMD-accelerated libjpeg-compatible JPEG codec library"
@@ -27,7 +27,7 @@ BUILD_DEPENDS_IPS="
     developer/nasm
 "
 
-test_relver '>=' 151043 && set_clangver
+set_clangver
 
 OPREFIX=$PREFIX
 PREFIX+="/$PROG"
@@ -48,9 +48,10 @@ CONFIGURE_OPTS="
     -DENABLE_STATIC=0
     -DCMAKE_INSTALL_PREFIX=$PREFIX
     -DCMAKE_INSTALL_INCLUDEDIR=$OPREFIX/include
+    -DCMAKE_POLICY_VERSION_MINIMUM=3.5
 "
 
-CFLAGS[aarch64]+=" -mno-outline-atomics -mtls-dialect=trad"
+CFLAGS[aarch64]+=" -mtls-dialect=trad"
 
 pre_build() {
     typeset arch=$1

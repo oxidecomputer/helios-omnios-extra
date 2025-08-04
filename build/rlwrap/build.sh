@@ -13,7 +13,7 @@
 # }}}
 
 # Copyright 2022 r7st r7st.guru@gmail.com
-# Copyright 2023 OmniOS Community Edition (OmniOSce) Association.
+# Copyright 2024 OmniOS Community Edition (OmniOSce) Association.
 
 . ../../lib/build.sh
 
@@ -26,8 +26,15 @@ DESC+="Readline library to allow the editing of keyboard input for any command."
 
 set_arch 64
 
+pre_configure() {
+    typeset arch=$1
+
+    CPPFLAGS[$arch]+=" -I${SYSROOT[$arch]}/usr/include"
+}
+
 init
 download_source $PROG $PROG $VER
+patch_source
 prep_build
 build
 make_package

@@ -14,7 +14,7 @@
 #
 # Copyright (c) 2014 by Delphix. All rights reserved.
 # Copyright 2015 OmniTI Computer Consulting, Inc.  All rights reserved.
-# Copyright 2022 OmniOS Community Edition (OmniOSce) Association.
+# Copyright 2024 OmniOS Community Edition (OmniOSce) Association.
 #
 
 #############################################################################
@@ -59,7 +59,7 @@ process_opts() {
     SKIP_CHECKSUM=
     EXTRACT_MODE=0
     MOG_TEST=
-    while getopts "bcimPpstf:ha:d:Llr:x" opt; do
+    while getopts "bcimM:Ppstf:ha:d:Llr:x" opt; do
         case $opt in
             a)
                 set_arch "$OPTARG"
@@ -95,6 +95,11 @@ process_opts() {
                 ;;
             m)
                 MOG_TEST=1
+                ;;
+            M)
+                logmsg -n "-- Will retrieve files from $OPTARG"
+                set_mirror "$OPTARG"
+                set_checksum none
                 ;;
             P)
                 REBASE_PATCHES=1
@@ -139,6 +144,8 @@ show_usage() {
   -l        : skip pkglint check
   -L        : skip hardlink target check
   -m        : re-generate final mog from local.mog (mog test mode)
+  -M URL    : retrieve files from URL instead of OmniOS mirror
+  -M /PATH  : retrieve files from (absolute) PATH instead of OmniOS mirror
   -p        : output all commands to the screen as well as log file
   -P        : re-base patches on latest source
   -r REPO   : specify the IPS repo to use
@@ -170,6 +177,10 @@ EOM
 #############################################################################
 # Log output of a command to a file
 #############################################################################
+pipelog() {
+    $TEE -a $LOGFILE 2>&1
+}
+
 logcmd() {
     typeset preserve_stdout=0
     [ "$1" = "-p" ] && shift && preserve_stdout=1
@@ -183,16 +194,12 @@ logcmd() {
     else
         if [ "$preserve_stdout" = 0 ]; then
             echo Running: "$@"
-            "$@" | $TEE -a $LOGFILE 2>&1
+            "$@" | pipelog
             return ${PIPESTATUS[0]}
         else
             "$@"
         fi
     fi
-}
-
-pipelog() {
-    $TEE -a $LOGFILE 2>&1
 }
 
 c_highlight="`$TPUT setaf 2`"
@@ -219,7 +226,7 @@ logerr() {
     # Print an error message and ask the user if they wish to continue
     logmsg -e "$@" >> /dev/stderr
     if [ -z "$BATCH" ]; then
-        ask_to_continue "An Error occured in the build. "
+        ask_to_continue "An Error occurred in the build. "
     else
         exit 1
     fi
@@ -507,7 +514,7 @@ set_clangver() {
 
     CFLAGS[0]="${FCFLAGS[_]}"
     CXXFLAGS[0]="${FCFLAGS[_]}"
-    CTF_CFLAGS="${CTFCFLAGS[_]}"
+    CTF_CFLAGS="${CTFCFLAGS[_]} ${CTFCFLAGS[$DEFAULT_GCC_VER]}"
 
     set_ssp strong $2
 }
@@ -580,6 +587,22 @@ set_rubyver() {
     export PATH
 
     BUILD_DEPENDS_IPS+=" ooce/runtime/ruby-${RUBYVER//./}"
+}
+
+#############################################################################
+# zig version
+#############################################################################
+
+set_zigver() {
+    ZIGVER="${1:-$DEFAULT_ZIG_VER}"
+    logmsg "-- Setting zig version to $ZIGVER"
+    ZIGPATH="/opt/ooce/zig-$ZIGVER"
+    PATH="$ZIGPATH/bin:$PATH"
+    export PATH
+
+    [ -x "$ZIGPATH/bin/zig" ] || logerr "Unknown zig version $ZIGVER"
+
+    BUILD_DEPENDS_IPS+=" ooce/developer/zig-${ZIGVER//./}"
 }
 
 #############################################################################
@@ -666,11 +689,30 @@ clear_archflags() {
 }
 
 set_standard() {
+    typeset -i xcurses=0
+    while [[ "$1" = -* ]]; do
+        case $1 in
+            -xcurses)  xcurses=1 ;;
+        esac
+        shift
+    done
     typeset st="$1"
     typeset var="${2:-CPPFLAGS}"
     [ -n "${STANDARDS[$st]}" ] || logerr "Unknown standard $st"
     declare -n _var=$var
     _var[0]+=" ${STANDARDS[$st]}"
+
+    # When selecting XPG4v2 or later, we must also use the X/Open curses
+    # library, as long as we were not called with "-nocurses"
+    ((xcurses)) || return
+    case $st in
+        XPG4v2|XPG5|XPG6)
+            typeset x=/usr/xpg4
+            _var[0]="-I$x/include ${_var[0]}"
+            LDFLAGS[i386]="-L$x/lib -R$x/lib ${LDFLAGS[i386]}"
+            LDFLAGS[amd64]="-L$x/lib/amd64 -R$x/lib/amd64 ${LDFLAGS[amd64]}"
+            ;;
+    esac
 }
 
 forgo_isaexec() {
@@ -767,7 +809,7 @@ init_repo() {
 
     if [[ "$repo" == file:/* ]]; then
         typeset rpath="`echo $repo | $SED 's^file:/*^/^'`"
-        if [ ! -d "$rpath" ]; then
+        if [ ! -f "$rpath/pkg5.repository" ]; then
             logmsg "-- Initialising local repo at $rpath"
             $PKGREPO create $rpath || logerr "Could not create local repo"
             $PKGREPO add-publisher -s $rpath $PKGPUBLISHER || \
@@ -802,6 +844,8 @@ init_sysroot() {
         logmsg "--- Seeding initial $arch sysroot"
         case $arch in
             aarch64)
+                logcmd $PKGCLIENT -R $tmpsysroot set-publisher \
+                    -g ${BRAICH_REPO} $PKGPUBLISHER
                 logcmd $PKGCLIENT -R $tmpsysroot set-publisher \
                     -g ${BRAICH_REPO} omnios
                 logcmd -p $PKGCLIENT -R $tmpsysroot install '*'
@@ -989,6 +1033,16 @@ append_builddir() {
     EXTRACTED_SRC+="/$1"
 }
 
+save_builddir() {
+    save_variable BUILDDIR $*
+    save_variable EXTRACTED_SRC $*
+}
+
+restore_builddir() {
+    restore_variable BUILDDIR $*
+    restore_variable EXTRACTED_SRC $*
+}
+
 set_patchdir() {
     PATCHDIR="$1"
 }
@@ -1078,10 +1132,21 @@ prep_build() {
 
     # Generate timestamps
     typeset now=`TZ=UTC $DATE +%s`
+    typeset TS_SRC_EPOCH=$((now - 60))
+    typeset TS_OBJ_EPOCH=$((now - 30))
     typeset TS_FMT="%Y%m%dT%H%M%SZ"
-    typeset TS_SRC=`$DATE -r $((now - 60)) +$TS_FMT`
-    typeset TS_OBJ=`$DATE -r $((now - 30)) +$TS_FMT`
+    typeset TS_SRC=`$DATE -r $TS_SRC_EPOCH +$TS_FMT`
+    typeset TS_OBJ=`$DATE -r $TS_OBJ_EPOCH +$TS_FMT`
 
+    # Python is patched to use the value of this variable as the timestamp that
+    # it embeds in .pyc files. We need to make sure that this embedded
+    # timestamp matches the timestamp that the packaging system will apply to
+    # the corresponding source .py file.
+    export FORCE_PYC_TIMESTAMP=$TS_SRC_EPOCH
+
+    # These tokens are used by rules in lib/mog/global-transforms.mog to
+    # automatically apply timestamp attributes to python modules and their
+    # compiled form. They can also be used by other packages in their local.mog
     SYS_XFORM_ARGS+=" -DTS_SRC=$TS_SRC -DTS_OBJ=$TS_OBJ"
 
     logmsg "--- Creating temporary installation directory"
@@ -1291,6 +1356,7 @@ patch_source() {
     [ -n "$SKIP_PATCH_SOURCE" ] && return
     [ -n "$REBASE_PATCHES" ] && rebase_patches "$@"
     apply_patches "$@"
+    hook post_patch "$TMPDIR/$EXTRACTED_SRC"
     [ -z "$*" -a $EXTRACT_MODE -ge 1 ] && exit
     [ -n "$GOPATH" ] && logcmd go clean -cache
 }
@@ -1302,11 +1368,24 @@ patch_source() {
 #   $1 - resource to get
 #
 get_resource() {
-    local RESOURCE=$1
-    case ${MIRROR:0:1} in
-        /)  logcmd $CP $MIRROR/$RESOURCE . ;;
+    typeset RESOURCE="$1"
+
+    if [ -n "$MIRRORCACHE" -a -f "$MIRRORCACHE/$RESOURCE" ]; then
+        logcmd $CP $MIRRORCACHE/$RESOURCE . && return
+    fi
+
+    case $MIRROR in
+        /*)  logcmd $CP $MIRROR/$RESOURCE . ;;
         *)  $WGET -a $LOGFILE $MIRROR/$RESOURCE ;;
     esac
+    typeset -i stat=$?
+
+    if ((stat == 0)) && [ -n "$MIRRORCACHE" ]; then
+        logcmd $MKDIR -p $MIRRORCACHE/${RESOURCE%/*}
+        logcmd $CP ${RESOURCE##*/} $MIRRORCACHE/${RESOURCE%/*}
+    fi
+
+    return $stat
 }
 
 set_checksum() {
@@ -1738,8 +1817,28 @@ generate_manifest() {
             GENERATE_ARGS+="--target $f "
         done
     fi
-    logcmd -p $PKGSEND generate $GENERATE_ARGS $DESTDIR > $outf \
-        || logerr "------ Failed to generate manifest"
+    logcmd -p $PKGSEND generate $GENERATE_ARGS $DESTDIR > $outf.raw \
+        || logerr "---- Failed to generate manifest"
+    # `pkgsend generate` will produce a manifest based on the files it
+    # finds under $DESTDIR. It will set the ownership and group in generated
+    # lines to root:bin, but will copy the mode attribute from the file it
+    # finds. The modes of files in this directory do generally accurately
+    # reflect executability, but other bits may be set depending on how the
+    # temporary directory is set up. For example, in a shared build workspace
+    # there could be extended ACLs to maintain writeability by the owning
+    # group, or the sticky group attribute may be set on directories.
+    # Rather than implicitly trusting the mode that is found, we normalise it
+    # to something more generic.
+    sed  -E '
+        # Strip off any special attributes such as setuid or sticky group
+        s/\<mode=0[[:digit:]]+([[:digit:]]{3})\>/mode=0\1/
+        # Reduce group/other permissions
+        s/\<mode=0([75])[[:digit:]]{2}\>/mode=0\155/
+        s/\<mode=0([64])[[:digit:]]{2}\>/mode=0\144/
+        # Convert unexpected modes to something reasonable
+        s/\<mode=02[[:digit:]]{2}\>/mode=0644/
+        s/\<mode=0[13][[:digit:]]{2}\>/mode=0755/
+    ' < $outf.raw > $outf || logerr "---- Failed cleaning manifest permissions"
 }
 
 convert_version() {
@@ -1814,6 +1913,23 @@ make_package() {
     done
 }
 
+manifest_mode_map() {
+    typeset src="$1"
+
+    $PKGFMT -u < $src | $AWK '
+        /^file|^dir/ {
+            delete map
+            split($0, a)
+            for (el in a) {
+                if (split(a[el], b, "=") == 2)
+                    map[b[1]] = b[2]
+            }
+            if ("path" in map && "mode" in map)
+                printf("%4s %6d %s|\n", $1, map["mode"], map["path"])
+        }
+    '
+}
+
 make_package_impl() {
     PKGE=`url_encode $PKG`
 
@@ -1871,12 +1987,12 @@ make_package_impl() {
 
     # Mog files are transformed in several stages
     #
-    #        $DESTDIR           +---------+
-    #   `pkgsend generate` ---> |.p5m.gen |
-    #                           +---------+
-    #                                |
-    #        +--------+              v
-    #        |.p5m.mog| <------ `pkgmogrify`
+    #        $DESTDIR           +-------------+   fix      +----------+
+    #   `pkgsend generate` ---> |.p5m.gen.raw | --perms--> | .p5m.gen |
+    #                           +-------------+            +----------+
+    #                                                            |
+    #        +--------+                                          v
+    #        |.p5m.mog| <--------------------------------- `pkgmogrify`
     #        +--------+
     #            |
     #            v                 +---------+
@@ -1950,6 +2066,39 @@ make_package_impl() {
             logmsg -e "$l"
         done
         logerr "Warnings from mogrify process"
+    fi
+
+    if [ -z "$BATCH" -a -f "$P5M_GEN.raw" ]; then
+        logmsg "--- Checking for permission overrides"
+        # Check for permissions set by the package install scripts which are
+        # not being preserved. Since the local mog may have added or removed
+        # files and directories, this is a bit more work than a simple diff.
+        #
+        manifest_mode_map $P5M_GEN.raw > $TMPDIR/permdiff.raw.$$
+        manifest_mode_map $P5M_MOG > $TMPDIR/permdiff.mog.$$
+
+        # Find the list of files common to both manifests and generate grep
+        # patterns to extract the corresponding lines from the mode maps.
+        for f in raw mog; do
+            $AWK '{print $3}' < $TMPDIR/permdiff.$f.$$ \
+                | $SORT > $TMPDIR/permdiff.$f.paths.$$
+        done
+        logcmd -p $COMM -12 $TMPDIR/permdiff.{raw,mog}.paths.$$ \
+            | $SED 's/.*/ &/' > $TMPDIR/permdiff.patt.$$
+
+        if ! $GDIFF -U0 --color=always --minimal \
+            <($GREP -Ff $TMPDIR/permdiff.patt.$$ $TMPDIR/permdiff.raw.$$) \
+            <($GREP -Ff $TMPDIR/permdiff.patt.$$ $TMPDIR/permdiff.mog.$$) \
+            > $TMPDIR/permdiff.$$; then
+                echo
+                # Not anchored due to colour codes in file
+                $EGREP -v '(\-\-\-|\+\+\+|\@\@) ' $TMPDIR/permdiff.$$ \
+                    | $SED 's/\|//'
+                note "Some permissions were overridden:"
+                logcmd $RM -f $TMPDIR/permdiff.$$
+                [ -z "$PERMDIFF_NOASK" ] && ask_to_continue
+        fi
+        logcmd $RM -f $TMPDIR/permdiff.*.$$
     fi
 
     if [ -n "$DESTDIR" ]; then
@@ -2435,19 +2584,30 @@ install_rust() {
 
     logmsg "Installing $prog"
 
-    logcmd $MKDIR -p "$DESTDIR/$PREFIX/bin" \
-        || logerr "Failed to create install dir"
-    logcmd $CP $TMPDIR/$BUILDDIR/target/release/$prog \
-        $DESTDIR/$PREFIX/bin/$prog || logerr "Failed to install binary"
+    for b in $BUILDARCH; do
+        [ $b = i386 ] && continue
 
-    for f in `$FD "^$prog\.1\$" $TMPDIR/$BUILDDIR`; do
-        logmsg "Found man page at $f"
+        hook pre_install $b || return
 
-        logcmd $MKDIR -p "$DESTDIR/$PREFIX/share/man/man1" \
-            || logerr "Failed to create man install dir"
-        logcmd $CP $f $DESTDIR/$PREFIX/share/man/man1/$prog.1 \
-            || logerr "Failed to install man page"
-        break
+        destdir=$DESTDIR
+        cross_arch $b && destdir+=.$b
+
+        logcmd $MKDIR -p "$destdir$PREFIX/bin" \
+            || logerr "Failed to create install dir"
+        logcmd $CP $TMPDIR/$BUILDDIR/target/${RUSTTRIPLETS[$b]}/release/$prog \
+            $destdir$PREFIX/bin/$prog || logerr "Failed to install binary"
+
+        for f in `$FD "^$prog\.1\$" $TMPDIR/$BUILDDIR`; do
+            logmsg "Found man page at $f"
+
+            logcmd $MKDIR -p "$destdir$PREFIX/share/man/man1" \
+                || logerr "Failed to create man install dir"
+            logcmd $CP $f $destdir$PREFIX/share/man/man1/$prog.1 \
+                || logerr "Failed to install man page"
+            break
+        done
+
+        hook post_install $b
     done
 }
 
@@ -2554,6 +2714,11 @@ configure_arch() {
         "$@" || \
         logerr "--- Configure failed"
     hook post_configure $arch
+    # Check for configuration tests that have failed as a result of a
+    # main function being present without a declared return type.
+    $RIPGREP --no-messages --no-ignore \
+        "error: (return type defaults|implicit declaration.*'(exit|strcmp)')" \
+        -g config.log && logerr 'Found broken tests in configure'
 }
 
 make_arch() {
@@ -2578,7 +2743,7 @@ done
 
 make_install() {
     typeset arch=$1; shift
-    hook pre_install $arch
+    hook pre_install $arch || return
     local args="$@"
     eval set -- $MAKE_INSTALL_ARGS_WS
     logmsg "--- make install"
@@ -2590,6 +2755,31 @@ make_install() {
             $MAKE_INSTALL_TARGET || logerr "--- Make install failed"
     fi
     hook post_install $arch
+
+    typeset tf=$TMPDIR/pkgconfig.fix
+    : > $tf
+    logmsg "--- fixing runtime path linker option in pkg-config files"
+    while read f; do
+        logcmd $RM -f $f.orig
+        $SED -Ei.orig -e '
+            # If the line already contains -Wl,-R, next!
+            /-Wl,-R/n
+            /^Libs:/ {
+                # Replace any -R with the more widely accepted -Wl,-R
+                s/[:space:]-R/ -Wl,-R/
+                # If the above replacement succeeded, next!
+                t
+                # Augment any remaining -L with a matching -Wl,-R
+                s/-L[:space:]*([^[:space:]]+)/& -Wl,-R\1/
+            }
+        ' $f || echo "Failed to fix $f" >> $tf
+        logcmd $DIFF -u $f{.orig,}
+        logcmd $RM $f.orig
+    done < <($FD -t f -e pc -p "${LIBDIRS[$arch]}/pkgconfig/[^/]+\\.pc\$" $DESTDIR)
+    if [ -s "$tf" ]; then
+        $CAT $tf | pipelog
+        logerr "Problem fixing pkg-config files"
+    fi
 }
 
 make_install_i386() {
@@ -2691,6 +2881,7 @@ check_buildlog() {
     logmsg "--- Checking logfile for errors (expect $expected)"
 
     errs="`$GREP 'error: ' $LOGFILE | \
+        $EGREP -v -- '-Werror' | \
         $EGREP -cv 'pathspec.*did not match any file'`"
 
     [ "$errs" -ne "$expected" ] \
@@ -2764,7 +2955,7 @@ run_testsuite() {
         else
             $CP $op $SRCDIR/$output
         fi
-        logcmd $RM -f $op
+        logcmd $MV $op $TMPDIR/testsuite.raw
         hook post_test
         popd > /dev/null
     fi
@@ -2788,7 +2979,7 @@ build_dependency() {
             -ctf)       buildargs+=" -ctf" ;;
             -noctf)     buildargs+=" -noctf" ;;
             -oot)       oot=1 ;;
-            -meson)     meson=1 ; oot=1 ;;
+            -meson)     meson=1; oot=1 ;;
             -cmake)     cmake=1; oot=1 ;;
             -multi)     buildargs+=" -multi" ;;
         esac
@@ -2854,6 +3045,7 @@ build_dependency() {
 
 set_python_version() {
     PYTHONVER=$1
+    PYTHONMAJVER=${PYTHONVER%%.*}
     PYTHONPKGVER=${PYTHONVER//./}
     PYTHONPATH=$PREFIX
     PYTHON=/usr/bin/python$PYTHONVER
@@ -2866,7 +3058,7 @@ python_path_fixup() {
     pushd $DESTDIR/$PREFIX/bin >/dev/null || return
     for f in *; do
         [ -f "$f" ] || continue
-        file "$f" | $EGREP -s 'executable.*python.*script' || continue
+        $FILE "$f" | $EGREP -s 'executable.*python.*script' || continue
         logmsg "Fixing python library path in $f"
         sed -i "1a\\
 import sys; sys.path.insert(1, '$PREFIX/lib/python$PYTHONVER/vendor-packages')
@@ -2896,14 +3088,28 @@ python_vendor_relocate() {
 
 python_compile() {
     logmsg "Compiling python modules"
-    logcmd $PYTHON -m compileall $DESTDIR
+    case $PYTHONVER in
+        2.*) logcmd $PYTHON \
+                -m compileall \
+                -f \
+                "$@" \
+                $DESTDIR ;;
+        *) logcmd $PYTHON \
+                -m compileall \
+                -j0 \
+                -f \
+                --invalidation-mode timestamp \
+                "$@" \
+                $DESTDIR ;;
+    esac
 }
 
 python_pep518() {
     logmsg "-- PEP518 build"
     logcmd $PYTHON -mpip install -vvv \
         --no-deps --isolated --no-input --exists-action=a \
-        --disable-pip-version-check --prefix=$PREFIX --root=$DESTDIR . \
+        --disable-pip-version-check --root=$DESTDIR $PEP518OPTS \
+        --prefix=$PREFIX . \
         || logerr "--- build failed"
 }
 
@@ -2944,6 +3150,7 @@ python_build_arch() {
         LDFLAGS="${LDFLAGS[0]} ${LDFLAGS[$arch]}" \
         PYBUILDOPTS="${PYBUILDOPTS[0]} ${PYBUILDOPTS[$arch]}" \
         PYINSTOPTS="${PYINSTOPTS[0]} ${PYINSTOPTS[$arch]}" \
+        PEP518OPTS="${PEP518OPTS[0]} ${PEP518OPTS[$arch]}" \
         python_backend
 
     # XXX - can do better
@@ -3058,7 +3265,7 @@ pyvenv_build() {
     for b in bin/*; do
         [ -f "$b" ] || continue
         [ -h "$b" ] && continue
-        file "$b" | egrep -s 'python.*script$' || continue
+        $FILE "$b" | $EGREP -s 'executable.*python.*script' || continue
         logmsg "Fixing shebang in $b"
         sed -i "1s^$DESTDIR^^" "$b"
     done
@@ -3086,13 +3293,51 @@ pyvenv_build() {
 #############################################################################
 
 build_rust() {
-    logmsg "Building rust (amd64)"
+    save_variables CFLAGS CXXFLAGS
 
-    pushd $TMPDIR/$BUILDDIR >/dev/null
+    for b in $BUILDARCH; do
+        [ $b = i386 ] && continue
 
-    logcmd $CARGO build --release $@ || logerr "build failed"
+        logmsg "Building rust ($b)"
 
-    popd >/dev/null
+        hook pre_build $b || continue
+
+        pushd $TMPDIR/$BUILDDIR >/dev/null
+
+        if cross_arch $b; then
+            restore_variables CFLAGS CXXFLAGS
+
+            subsume_arch $b CFLAGS
+            subsume_arch $b CXXFLAGS
+            CFLAGS+=" --sysroot=${SYSROOT[$b]}"
+            CXXFLAGS+=" --sysroot=${SYSROOT[$b]}"
+            export CFLAGS CXXFLAGS
+
+            RUSTFLAGS+=" -C linker=$CROSSTOOLS/$b/bin/gcc"
+            RUSTFLAGS+=" -C link-arg=--sysroot=${SYSROOT[$b]}"
+            export RUSTFLAGS
+
+            PKG_CONFIG_SYSROOT_DIR=${SYSROOT[$b]}
+            PKG_CONFIG_LIBDIR="${SYSROOT[$b]}/usr/${LIBDIRS[$b]}/pkgconfig"
+            PKG_CONFIG_LIBDIR+=":${SYSROOT[$b]}$OOCEOPT/${LIBDIRS[$b]}/pkgconfig"
+            export PKG_CONFIG_SYSROOT_DIR PKG_CONFIG_LIBDIR
+
+            TARGET_CC="$CROSSTOOLS/$b/bin/gcc"
+            TARGET_CXX="$CROSSTOOLS/$b/bin/g++"
+            export TARGET_CC TARGET_CXX
+        else
+            PKG_CONFIG_LIBDIR="/usr/${LIBDIRS[$b]}/pkgconfig"
+            PKG_CONFIG_LIBDIR+=":$OOCEOPT/${LIBDIRS[$b]}/pkgconfig"
+            export PKG_CONFIG_LIBDIR
+        fi
+
+        logcmd $CARGO build --release --target=${RUSTTRIPLETS[$b]} $@ \
+            || logerr "build failed"
+
+        popd >/dev/null
+
+        hook post_build $b
+    done
 }
 
 #############################################################################
@@ -3118,7 +3363,7 @@ buildperl() {
     if [ -f Makefile.PL ]; then
         make_clean
         makefilepl $PERL_MAKEFILE_OPTS
-        make_prog
+        make_arch $BUILDARCH
         [ -n "$PERL_MAKE_TEST" ] && make_param test
         make_pure_install
     elif [ -f Build.PL ]; then
@@ -3471,7 +3716,7 @@ check_rtime() {
         -f $TMPDIR/rtime.files
 
     if [ -s "$TMPDIR/rtime.err" ]; then
-        $CAT $TMPDIR/rtime.err | $TEE -a $LOGFILE
+        $CAT $TMPDIR/rtime.err | pipelog
         logerr "ELF runtime problems detected"
     fi
 }
@@ -3489,7 +3734,7 @@ check_ssp() {
     done < <(rtime_objects)
     wait
     if [ -s "$TMPDIR/rtime.ssp" ]; then
-        $CAT $TMPDIR/rtime.ssp | $TEE -a $LOGFILE
+        $CAT $TMPDIR/rtime.ssp | pipelog
         logerr "Found object(s) without SSP"
     fi
 }
@@ -3528,7 +3773,7 @@ check_soname() {
     done < <(rtime_objects -f)
     wait
     if [ -s "$TMPDIR/rtime.soname" ]; then
-        $CAT $TMPDIR/rtime.soname | $TEE -a $LOGFILE
+        $CAT $TMPDIR/rtime.soname | pipelog
         logerr "Found SONAME problems"
     fi
 }
@@ -3553,7 +3798,7 @@ check_bmi() {
     done < <(rtime_objects)
     wait
     if [ -s "$TMPDIR/rtime.bmi" ]; then
-        $CAT $TMPDIR/rtime.bmi | $TEE -a $LOGFILE
+        $CAT $TMPDIR/rtime.bmi | pipelog
         logerr "BMI instruction set found"
     fi
 }
@@ -3644,7 +3889,8 @@ clean_up() {
                 logerr "Failed to remove temporary install directory $dir"
         done
         logmsg "--- Cleaning up temporary manifest and transform files"
-        logcmd $RM -f $P5M_GEN $P5M_MOG $P5M_DEPGEN $P5M_DEPGEN.res $P5M_FINAL \
+        logcmd $RM -f $P5M_GEN $P5M_GEN.raw $P5M_MOG \
+            $P5M_DEPGEN $P5M_DEPGEN.res $P5M_FINAL \
             $MY_MOG_FILE $MANUAL_DEPS || \
             logerr "Failed to remove temporary manifest and transform files"
         logmsg "Done."

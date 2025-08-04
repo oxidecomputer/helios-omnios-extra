@@ -22,6 +22,7 @@
 | omnios	| 26	| dma
 | extra		| 27	| postfix
 | illumos	| 37	| listen
+| extra		| 49	| rustdesk
 | illumos	| 50	| gdm
 | illumos	| 51	| zfssnap
 | illumos	| 52	| upnp
@@ -57,9 +58,11 @@
 | extra		| 90	| postgres
 | extra		| 91	| subversion
 | omnios	| 92	| sshd
+| extra		| 93	| victoriametrics
 | illumos	| 95	| svctag
 | illumos	| 96	| unknown
 | pkg5		| 97	| pkg5srv
+| extra		| 98	| squid
 
 ### Groups
 
@@ -85,6 +88,7 @@
 | extra		| 27	| postfix
 | extra		| 28	| postdrop
 | extra		| 45	| sasl
+| extra		| 49	| rustdesk
 | illumos	| 50	| gdm
 | illumos	| 52	| upnp
 | extra		| 53	| named
@@ -119,7 +123,8 @@
 | extra		| 90	| postgres
 | extra		| 91	| subversion
 | omnios	| 92	| sshd
+| extra		| 93	| victoriametrics
 | illumos	| 95	| slocate
 | illumos	| 96	| unknown
 | pkg5		| 97	| pkg5srv
-
+| extra		| 98	| squid

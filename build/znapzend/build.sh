@@ -13,12 +13,12 @@
 # }}}
 #
 # Copyright 1995-2013 OETIKER+PARTNER AG  All rights reserved.
-# Copyright 2023 OmniOS Community Edition (OmniOSce) Association.
+# Copyright 2024 OmniOS Community Edition (OmniOSce) Association.
 
 . ../../lib/build.sh
 
 PROG=znapzend
-VER=0.21.2
+VER=0.23.2
 PKG=ooce/system/znapzend
 SUMMARY="A ZFS-aware backup script"
 DESC="Take snapshots and transfer them to a second pool, "
@@ -39,6 +39,10 @@ XFORM_ARGS="
 CONFIGURE_OPTS[amd64]="
     --prefix=$PREFIX
 "
+
+# Some perl modules have started using GNU extensions when packaging their
+# distributions, so we need GNU tar first in the path.
+PATH=$GNUBIN:$PATH
 
 init
 download_source $PROG $PROG $VER

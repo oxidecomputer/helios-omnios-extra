@@ -12,19 +12,23 @@
 # http://www.illumos.org/license/CDDL.
 # }}}
 
-# Copyright 2023 OmniOS Community Edition (OmniOSce) Association.
+# Copyright 2025 OmniOS Community Edition (OmniOSce) Association.
 
 . ../../lib/build.sh
 
 PROG=php
 PKG=ooce/application/php-81
-VER=8.1.21
+VER=8.1.32
 SUMMARY="PHP 8.1"
 DESC="A popular general-purpose scripting language"
 
-PANDAHASH=3452f15
+PANDAHASH=01eaaa9
+
+# panda does not yet build with gcc 14
+((GCCVER > 13)) && set_gccver 13
 
 set_arch 64
+set_standard XPG6
 
 SKIP_LICENCES=PHP
 
@@ -98,6 +102,8 @@ CONFIGURE_CMD=/bin/true \
 
 save_function _make_install make_install
 restore_buildenv
+
+set_gccver $DEFAULT_GCC_VER
 
 note -n "Building $PROG $VER"
 
@@ -208,6 +214,7 @@ upload_tmp_dir = /tmp
 
 download_source $PROG $PROG $VER
 patch_source
+run_inbuild ./buildconf -f
 build
 xform files/php-template.xml > $TMPDIR/$PROG-$sMAJVER.xml
 xform files/php-template > $TMPDIR/$PROG-$sMAJVER

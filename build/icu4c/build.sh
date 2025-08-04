@@ -12,12 +12,12 @@
 # http://www.illumos.org/license/CDDL.
 # }}}
 
-# Copyright 2022 OmniOS Community Edition (OmniOSce) Association.
+# Copyright 2024 OmniOS Community Edition (OmniOSce) Association.
 
 . ../../lib/build.sh
 
 PROG=icu4c
-VER=72.1
+VER=76.1
 PKG=ooce/library/icu4c
 SUMMARY="ICU - International Components for Unicode"
 DESC="A mature, widely used set of C/C++ libraries providing "
@@ -33,15 +33,54 @@ CONFIGURE_OPTS[amd64]+="
     --sbindir=$PREFIX/sbin
 "
 
-LDFLAGS[i386]+=" -R$PREFIX/lib"
-LDFLAGS[amd64]+=" -R$PREFIX/lib/amd64"
+CXXFLAGS[aarch64]+=" -mno-outline-atomics -mtls-dialect=trad"
 
-# Make ISA binaries for icu-config, to allow software to find the
-# right settings for 32/64-bit when pkg-config is not used.
-make_isa_stub() {
+pre_configure() {
+    typeset arch=$1
+
+    LDFLAGS[$arch]+=" -R$PREFIX/${LIBDIRS[$arch]}"
+
+    ! cross_arch $arch && return
+
+    save_variable BUILDARCH
+    save_buildenv
+    set_arch $BUILD_ARCH
+    set_gccver $DEFAULT_GCC_VER
+
+    save_builddir __native_tools__
+    append_builddir "_native_tools"
+    logcmd $MKDIR -p $TMPDIR/$BUILDDIR || logerr "mkdir failed"
+    CONFIGURE_CMD=../configure
+
+    note -n "-- Building native tools"
+
+    # not installing the native tools
+    pre_install() { false; }
+
+    build
+
+    set_crossgcc $arch
+    restore_builddir __native_tools__
+    restore_buildenv
+    restore_variable BUILDARCH
+
+    unset -f pre_install
+
+    CONFIGURE_OPTS[$arch]+="
+        --with-cross-build=$TMPDIR/$BUILDDIR/_native_tools
+    "
+
+    note -n "-- Building $PROG"
+}
+
+post_install() {
+    [ "$1" != amd64 ] && return
+
+    # Make ISA binaries for icu-config, to allow software to find the
+    # right settings for 32/64-bit when pkg-config is not used.
     pushd $DESTDIR$PREFIX/bin >/dev/null
-    logcmd mkdir -p amd64
-    logcmd mv icu-config amd64/ || logerr "mv icu-config"
+    logcmd $MKDIR -p amd64
+    logcmd $MV icu-config amd64/ || logerr "mv icu-config"
     make_isaexec_stub_arch amd64 $PREFIX/bin
     popd >/dev/null
 }
@@ -51,7 +90,6 @@ download_source $PROG $PROG-${VER//./_}-src
 patch_source
 prep_build
 build
-make_isa_stub
 make_package
 clean_up
 

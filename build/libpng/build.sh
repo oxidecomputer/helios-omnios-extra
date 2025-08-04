@@ -12,17 +12,19 @@
 # http://www.illumos.org/license/CDDL.
 # }}}
 
-# Copyright 2023 OmniOS Community Edition (OmniOSce) Association.
+# Copyright 2025 OmniOS Community Edition (OmniOSce) Association.
 
 . ../../lib/build.sh
 
 PROG=libpng
-VER=1.6.40
+VER=1.6.47
 PKG=ooce/library/libpng
 SUMMARY="libpng"
 DESC="libpng is the official PNG reference library"
 
 SKIP_LICENCES=libpng
+
+test_relver '>=' 151053 && set_clangver
 
 OPREFIX=$PREFIX
 PREFIX+="/$PROG"
@@ -57,6 +59,8 @@ CONFIGURE_OPTS[aarch64]+="
 
 pre_configure() {
     typeset arch=$1
+
+    LDFLAGS[$arch]+=" -Wl,-R$OPREFIX/${LIBDIRS[$arch]}"
 
     ! cross_arch $arch && return
 

@@ -12,14 +12,14 @@
 # http://www.illumos.org/license/CDDL.
 # }}}
 
-# Copyright 2023 OmniOS Community Edition (OmniOSce) Association.
+# Copyright 2024 OmniOS Community Edition (OmniOSce) Association.
 
 . ../../lib/build.sh
 
 PROG=VirtualBox
 PKG=ooce/virtualization/virtualbox
-VER=7.0.8
-GSOAPVER=2.8.127
+VER=7.0.20
+GSOAPVER=2.8.134
 GSOAPDIR=gsoap-${GSOAPVER%.*}
 SUMMARY="VirtualBox"
 DESC="VirtualBox is a general-purpose full virtualiser for x86 hardware, "
@@ -108,6 +108,10 @@ CONFIGURE_OPTS="
     --enable-webservice
 "
 
+# We use the bundled libxml2 since the system package is too new - some
+# constification has been done and virtualbox is not yet ready for it.
+CONFIGURE_OPTS+=" --build-libxml2"
+
 # false positives are detected by our build framework
 EXPECTED_BUILD_ERRS=6
 
@@ -171,8 +175,8 @@ VBOX_GSOAP_INCS = $DEPROOT/usr/include
 VBOX_DO_STRIP =
 
 # link kernel modules
-TEMPLATE_VBOXR0DRV_LDFLAGS = -r ${LDFLAGS[kmod]}
-TEMPLATE_VBOXGUESTR0_LDFLAGS = -r ${LDFLAGS[kmod]}
+TEMPLATE_VBOXR0DRV_LDFLAGS = -r ${LDFLAGS[kmod_amd64]}
+TEMPLATE_VBOXGUESTR0_LDFLAGS = -r ${LDFLAGS[kmod_amd64]}
 
 EOF
     logmsg "--- building VirtualBox"
@@ -195,8 +199,8 @@ make_install() {
     bindir=out/solaris.amd64/$BUILD_TYPE
 
     # Fix the runtime path for these components to include the ooce lib
-    # in order that libpng can be found.
-    for f in VBoxSVC components/VBoxC.so; do
+    # in order that libpng and libtpms can be found.
+    for f in VBoxSVC VBoxDD.so components/VBoxC.so; do
         logcmd elfedit -e "dyn:value -s RUNPATH $rpath" $DESTDIR$PREFIX/amd64/$f
         logcmd elfedit -e "dyn:value -s RPATH $rpath" $DESTDIR$PREFIX/amd64/$f
     done

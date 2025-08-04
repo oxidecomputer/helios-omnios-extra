@@ -34,8 +34,6 @@ CONFIGURE_OPTS="
     --disable-static
     --disable-doc
     --enable-manpages
-    --with-included-libtasn1
-    --with-included-unistring
     --disable-openssl-compatibility
     --disable-guile
     --disable-valgrind-tests
@@ -56,7 +54,7 @@ pre_configure() {
     CPPFLAGS+=" -I${SYSROOT[$arch]}/usr/include/gmp"
     CPPFLAGS+=" -I${SYSROOT[$arch]}$PREFIX/include"
     CPPFLAGS+=" -I${SYSROOT[$arch]}$PREFIX/unbound/include"
-    CFLAGS[aarch64]+=" -mno-outline-atomics -mtls-dialect=trad"
+    CFLAGS[aarch64]+=" -mtls-dialect=trad"
     LDFLAGS[$arch]+=" -L${SYSROOT[$arch]}$PREFIX/${LIBDIRS[$arch]}"
     LDFLAGS[$arch]+=" -L${SYSROOT[$arch]}$PREFIX/unbound/${LIBDIRS[$arch]}"
     LDFLAGS[$arch]+=" -R$PREFIX/${LIBDIRS[$arch]}"

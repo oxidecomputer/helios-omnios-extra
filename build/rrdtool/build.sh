@@ -12,12 +12,12 @@
 # http://www.illumos.org/license/CDDL.
 # }}}
 
-# Copyright 2022 OmniOS Community Edition (OmniOSce) Association.
+# Copyright 2024 OmniOS Community Edition (OmniOSce) Association.
 
 . ../../lib/build.sh
 
 PROG=rrdtool
-VER=1.8.0
+VER=1.9.0
 PKG=ooce/database/rrdtool
 SUMMARY="Round-Robin Database Tool"
 DESC="High performance data logging and graphing system for time series data."

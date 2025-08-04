@@ -12,12 +12,12 @@
 # http://www.illumos.org/license/CDDL.
 # }}}
 
-# Copyright 2023 OmniOS Community Edition (OmniOSce) Association.
+# Copyright 2024 OmniOS Community Edition (OmniOSce) Association.
 
 . ../../lib/build.sh
 
 PROG=nano
-VER=7.2
+VER=8.4
 PKG=ooce/editor/nano
 SUMMARY="nano editor"
 DESC="GNU implementation of nano, a text editor emulating pico"
@@ -25,7 +25,7 @@ DESC="GNU implementation of nano, a text editor emulating pico"
 BUILD_DEPENDS_IPS="library/ncurses"
 
 set_arch 64
-test_relver '>=' 151045 && set_clangver
+set_clangver
 
 XFORM_ARGS="
     -DPREFIX=${PREFIX#/}

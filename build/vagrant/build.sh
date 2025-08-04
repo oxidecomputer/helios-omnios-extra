@@ -12,7 +12,7 @@
 # http://www.illumos.org/license/CDDL.
 # }}}
 
-# Copyright 2021 OmniOS Community Edition (OmniOSce) Association.
+# Copyright 2024 OmniOS Community Edition (OmniOSce) Association.
 
 . ../../lib/build.sh
 
@@ -24,18 +24,22 @@ INSTVER=2.2.6
 SUMMARY="Vagrant"
 DESC="Build and distribute virtualized development environments"
 
+RUBYVER=3.0
+
 OPREFIX=$PREFIX
 PREFIX+=/$PROG
 
 set_arch 64
 set_gover
-set_rubyver
+set_rubyver $RUBYVER
 
 XFORM_ARGS="
     -DPREFIX=${PREFIX#/}
     -DOPREFIX=${OPREFIX#/}
     -DPROG=$PROG
     -DVERSION=$VER
+    -DRUBYBIN=$OOCEOPT/ruby-$RUBYVER/bin
+    -DVAGRANT=$PREFIX/bin/$PROG.bin
 "
 
 # For bsdtar, needed to unpack boxes
@@ -60,6 +64,7 @@ build() {
     GOPATH=$TMPDIR/$BUILDDIR/$PROG-installers/substrate/launcher/_deps
     GO111MODULE=auto
     export GOPATH GO111MODULE
+    logcmd go mod init $PROG || logerr "Failed to init go module"
     logcmd go get github.com/kardianos/osext \
         || logerr "Get dependency for Vagrant Installers failed"
     logcmd go build -o $PROG || logerr "Build Vagrant Installers failed"
@@ -91,7 +96,7 @@ install() {
     logmsg "Install Vagrant, Installer and all embedded dependencies"
     logcmd mkdir -p $DESTDIR/$PREFIX/bin
     logcmd cp $TMPDIR/$BUILDDIR/$PROG-installers/substrate/launcher/$PROG \
-        $DESTDIR/$PREFIX/bin/$PROG || logerr "cp failed"
+        $DESTDIR/$PREFIX/bin/$PROG.bin || logerr "cp failed"
     logcmd cp -r $TMPDIR/$BUILDDIR/$PROG/opt/$PROG/embedded \
         $DESTDIR/$PREFIX || logerr "cp failed"
 
@@ -106,6 +111,7 @@ PATCHDIR=patches-installer patch_source
 prep_build
 build
 install
+xform files/$PROG > $TMPDIR/$PROG
 make_package
 clean_up
 

@@ -13,13 +13,13 @@
 # }}}
 
 # Copyright 2011-2013 OmniTI Computer Consulting, Inc.  All rights reserved.
-# Copyright 2023 OmniOS Community Edition (OmniOSce) Association.
+# Copyright 2025 OmniOS Community Edition (OmniOSce) Association.
 
 . ../../lib/build.sh
 
 PROG=nginx
 PKG=ooce/server/nginx
-VER=1.25.1
+VER=1.27.4
 SUMMARY="nginx web server"
 DESC="nginx is a high-performance HTTP(S) server and reverse proxy"
 
@@ -27,7 +27,7 @@ DESC="nginx is a high-performance HTTP(S) server and reverse proxy"
 BROTLIVER=1.0.0rc
 
 set_arch 64
-test_relver '>=' 151045 && set_clangver
+set_clangver
 
 MAJVER=${VER%.*}            # M.m
 sMAJVER=${MAJVER//./}       # Mm

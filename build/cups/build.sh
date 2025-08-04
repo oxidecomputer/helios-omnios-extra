@@ -12,17 +12,17 @@
 # http://www.illumos.org/license/CDDL.
 # }}}
 
-# Copyright 2023 OmniOS Community Edition (OmniOSce) Association.
+# Copyright 2024 OmniOS Community Edition (OmniOSce) Association.
 
 . ../../lib/build.sh
 
 PROG=cups
-VER=2.4.6
+VER=2.4.11
 PKG=ooce/print/cups
 SUMMARY="Common UNIX Printing System"
 DESC="Standards-based, open source printing system for UNIX operating systems"
 
-test_relver '>=' 151041 && set_clangver
+set_clangver
 
 # getpwuid_r
 set_standard XPG6
@@ -61,12 +61,12 @@ CONFIGURE_OPTS="
     --without-php
     --without-java
 "
-# cups only supports openssl 3+
-[ $RELVER -lt 151041 ] && CONFIGURE_OPTS+=" --with-tls=gnutls"
 
 # cups uses libusb_get_device_list to enumerate devices
 # this currently fails in zones as it uses libdevinfo
 CONFIGURE_OPTS+=" --disable-libusb"
+
+CPPFLAGS+=" -DOOCEVER=$RELVER"
 
 pre_configure() {
     typeset arch=$1

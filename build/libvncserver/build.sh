@@ -12,17 +12,19 @@
 # http://www.illumos.org/license/CDDL.
 # }}}
 
-# Copyright 2022 OmniOS Community Edition (OmniOSce) Association.
+# Copyright 2025 OmniOS Community Edition (OmniOSce) Association.
 
 . ../../lib/build.sh
 
 PROG=libvncserver
-VER=0.9.14
+VER=0.9.15
 PKG=ooce/library/libvncserver
 SUMMARY="libvncserver"
 DESC="A library for easy implementation of a VNC server."
 
-BUILDDIR="$PROG-LibVNCServer-$VER"
+test_relver '>=' 151051 && set_clangver
+
+set_builddir $PROG-LibVNCServer-$VER
 
 BUILD_DEPENDS_IPS="
     ooce/developer/cmake
@@ -39,28 +41,24 @@ CONFIGURE_OPTS="
     -DCMAKE_BUILD_TYPE=Release
     -DADDITIONAL_LIBS=socket
     -DCMAKE_INSTALL_PREFIX=$PREFIX
-    -DWITH_WEBSOCKETS=0
+    -DWITH_EXAMPLES=OFF
+    -DCMAKE_POLICY_VERSION_MINIMUM=3.5
 "
 CONFIGURE_OPTS[i386]=
-CONFIGURE_OPTS[amd64]="-DCMAKE_LIBRARY_PATH=$PREFIX/lib/amd64"
+CONFIGURE_OPTS[amd64]="-DCMAKE_INSTALL_LIBDIR=${LIBDIRS[amd64]}"
+CONFIGURE_OPTS[aarch64]=
 
-LDFLAGS[i386]+=" -L$PREFIX/lib -R$PREFIX/lib"
-LDFLAGS[amd64]+=" -L$PREFIX/lib/amd64 -R$PREFIX/lib/amd64"
 CFLAGS+=" -D_REENTRANT"
 
-[ "$BUILDARCH" = "i386 amd64" ] && BUILDARCH="amd64 i386"
+pre_configure() {
+    typeset arch=$1
 
-post_install() {
-    [ $1 = amd64 ] || return
-
-    pushd $DESTDIR/$PREFIX >/dev/null
-    logcmd mkdir -p lib/amd64/
-    logcmd mv lib/*.so.* lib/pkgconfig lib/amd64/
-    popd >/dev/null
+    LDFLAGS[$arch]+=" -L${SYSROOT[$arch]}$PREFIX/${LIBDIRS[$arch]}"
+    LDFLAGS[$arch]+=" -Wl,-R$PREFIX/${LIBDIRS[$arch]}"
 }
 
 init
-download_source $PROG "LibVNCServer" $VER
+download_source $PROG LibVNCServer $VER
 patch_source
 prep_build cmake+ninja
 build

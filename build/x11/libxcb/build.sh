@@ -12,12 +12,12 @@
 # http://www.illumos.org/license/CDDL.
 # }}}
 
-# Copyright 2022 OmniOS Community Edition (OmniOSce) Association.
+# Copyright 2024 OmniOS Community Edition (OmniOSce) Association.
 
 . ../../../lib/build.sh
 
 PROG=libxcb
-VER=1.15
+VER=1.17.0
 PSTUBVER=0.1
 PKG=ooce/x11/library/libxcb
 SUMMARY="libxcb"
@@ -39,17 +39,17 @@ prep_build
 build_dependency -merge libpthread-stubs libpthread-stubs-$PSTUBVER \
     x11/libpthread-stubs libpthread-stubs $PSTUBVER
 
-addpath PKG_CONFIG_PATH[i386] $DEPROOT$PREFIX/lib/pkgconfig
-addpath PKG_CONFIG_PATH[amd64] $DEPROOT$PREFIX/lib/amd64/pkgconfig
+addpath PKG_CONFIG_PATH[i386] $DEPROOT$PREFIX/${LIBDIRS[i386]}/pkgconfig
+addpath PKG_CONFIG_PATH[amd64] $DEPROOT$PREFIX/${LIBDIRS[amd64]}/pkgconfig
 
 ######################################################################
 
-PYTHONPATH+=":$PREFIX/lib/python$PYTHONVER/vendor-packages"
+PYTHONPATH+=":$PYTHONVENDOR"
 export PYTHONPATH
 
 download_source x11/$PROG $PROG $VER
 patch_source
-build -ctf
+build
 make_package
 clean_up
 

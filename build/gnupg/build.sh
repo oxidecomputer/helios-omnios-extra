@@ -12,24 +12,24 @@
 # http://www.illumos.org/license/CDDL.
 # }}}
 #
-# Copyright 2022 OmniOS Community Edition (OmniOSce) Association.
+# Copyright 2024 OmniOS Community Edition (OmniOSce) Association.
 #
 . ../../lib/build.sh
 
 PROG=gnupg
-VER=2.4.0
+VER=2.4.7
 PKG=ooce/security/gnupg
 SUMMARY="$PROG - GNU Privacy Guard"
 DESC="A complete and free implementation of the OpenPGP standard"
 
 # we don't track the versions in doc/packages.md
 # check for updates when gnupg is updated
-LIBGPGERRORVER=1.46
-LIBGCRYPTVER=1.10.1
-LIBKSBAVER=1.6.3
-LIBASSUANVER=2.5.5
-NPTHVER=1.6
-PINENTRYVER=1.2.1
+LIBGPGERRORVER=1.51
+LIBGCRYPTVER=1.11.0
+LIBKSBAVER=1.6.7
+LIBASSUANVER=3.0.1
+NPTHVER=1.8
+PINENTRYVER=1.3.1
 
 OPREFIX=$PREFIX
 PREFIX+="/$PROG"
@@ -84,8 +84,11 @@ build_dependency libksba libksba-$LIBKSBAVER \
 build_dependency libassuan libassuan-$LIBASSUANVER \
     $PROG/libassuan libassuan $LIBASSUANVER
 
+save_variable CONFIGURE_OPTS
+CONFIGURE_OPTS+=" --enable-install-npth-config"
 build_dependency npth npth-$NPTHVER \
     $PROG/npth npth $NPTHVER
+restore_variable CONFIGURE_OPTS
 
 save_variable DEPROOT
 
@@ -133,7 +136,8 @@ PATH+=":$DEPROOT$PREFIX/bin"
 
 download_source $PROG $PROG $VER
 patch_source
-build -ctf
+run_autoreconf -fi
+build
 install_execattr
 run_testsuite check
 make_package

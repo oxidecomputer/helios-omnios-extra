@@ -1,0 +1,83 @@
+diff -wpruN --no-dereference '--exclude=*.orig' a~/src/password-store.sh a/src/password-store.sh
+--- a~/src/password-store.sh	1970-01-01 00:00:00
++++ a/src/password-store.sh	1970-01-01 00:00:00
+@@ -337,14 +337,14 @@ cmd_init() {
+ 
+ 	if [[ $# -eq 1 && -z $1 ]]; then
+ 		[[ ! -f "$gpg_id" ]] && die "Error: $gpg_id does not exist and so cannot be removed."
+-		rm -v -f "$gpg_id" || exit 1
++		rm -f "$gpg_id" || exit 1
+ 		if [[ -n $INNER_GIT_DIR ]]; then
+ 			git -C "$INNER_GIT_DIR" rm -qr "$gpg_id"
+ 			git_commit "Deinitialize ${gpg_id}${id_path:+ ($id_path)}."
+ 		fi
+ 		rmdir -p "${gpg_id%/*}" 2>/dev/null
+ 	else
+-		mkdir -v -p "$PREFIX/$id_path"
++		mkdir -p "$PREFIX/$id_path"
+ 		printf "%s\n" "$@" > "$gpg_id"
+ 		local id_print="$(printf "%s, " "$@")"
+ 		echo "Password store initialized for ${id_print%, }${id_path:+ ($id_path)}"
+@@ -453,7 +453,7 @@ cmd_insert() {
+ 
+ 	[[ $force -eq 0 && -e $passfile ]] && yesno "An entry already exists for $path. Overwrite it?"
+ 
+-	mkdir -p -v "$PREFIX/$(dirname -- "$path")"
++	mkdir -p "$PREFIX/$(dirname -- "$path")"
+ 	set_gpg_recipients "$(dirname -- "$path")"
+ 
+ 	if [[ $multiline -eq 1 ]]; then
+@@ -487,7 +487,7 @@ cmd_edit() {
+ 
+ 	local path="${1%/}"
+ 	check_sneaky_paths "$path"
+-	mkdir -p -v "$PREFIX/$(dirname -- "$path")"
++	mkdir -p "$PREFIX/$(dirname -- "$path")"
+ 	set_gpg_recipients "$(dirname -- "$path")"
+ 	local passfile="$PREFIX/$path.gpg"
+ 	set_git "$passfile"
+@@ -529,7 +529,7 @@ cmd_generate() {
+ 	check_sneaky_paths "$path"
+ 	[[ $length =~ ^[0-9]+$ ]] || die "Error: pass-length \"$length\" must be a number."
+ 	[[ $length -gt 0 ]] || die "Error: pass-length must be greater than zero."
+-	mkdir -p -v "$PREFIX/$(dirname -- "$path")"
++	mkdir -p "$PREFIX/$(dirname -- "$path")"
+ 	set_gpg_recipients "$(dirname -- "$path")"
+ 	local passfile="$PREFIX/$path.gpg"
+ 	set_git "$passfile"
+@@ -584,7 +584,7 @@ cmd_delete() {
+ 
+ 	[[ $force -eq 1 ]] || yesno "Are you sure you would like to delete $path?"
+ 
+-	rm $recursive -f -v "$passfile"
++	rm $recursive -f "$passfile"
+ 	set_git "$passfile"
+ 	if [[ -n $INNER_GIT_DIR && ! -e $passfile ]]; then
+ 		git -C "$INNER_GIT_DIR" rm -qr "$passfile"
+@@ -618,7 +618,7 @@ cmd_copy_move() {
+ 	echo "$old_path"
+ 	[[ -e $old_path ]] || die "Error: $1 is not in the password store."
+ 
+-	mkdir -p -v "${new_path%/*}"
++	mkdir -p "${new_path%/*}"
+ 	[[ -d $old_path || -d $new_path || $new_path == */ ]] || new_path="${new_path}.gpg"
+ 
+ 	local interactive="-i"
+@@ -626,7 +626,7 @@ cmd_copy_move() {
+ 
+ 	set_git "$new_path"
+ 	if [[ $move -eq 1 ]]; then
+-		mv $interactive -v "$old_path" "$new_path" || exit 1
++		mv $interactive "$old_path" "$new_path" || exit 1
+ 		[[ -e "$new_path" ]] && reencrypt_path "$new_path"
+ 
+ 		set_git "$new_path"
+@@ -643,7 +643,7 @@ cmd_copy_move() {
+ 		fi
+ 		rmdir -p "$old_dir" 2>/dev/null
+ 	else
+-		cp $interactive -r -v "$old_path" "$new_path" || exit 1
++		cp $interactive -r "$old_path" "$new_path" || exit 1
+ 		[[ -e "$new_path" ]] && reencrypt_path "$new_path"
+ 		git_add_file "$new_path" "Copy ${1} to ${2}."
+ 	fi

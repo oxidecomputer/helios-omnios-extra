@@ -13,23 +13,24 @@
 # }}}
 #
 # Copyright 2011-2012 OmniTI Computer Consulting, Inc.  All rights reserved.
-# Copyright 2022 OmniOS Community Edition (OmniOSce) Association.
+# Copyright 2025 OmniOS Community Edition (OmniOSce) Association.
 
 . ../common.sh
 
 PROG=binutils-gdb
-VER=2.39
+VER=2.43.1
 PKG=ooce/developer/aarch64-gnu-binutils
 SUMMARY="GNU binary utilities ($ARCH target)"
 DESC="A set of programming tools for creating and managing binary programs, "
 DESC+="object files, libraries, etc."
 
 REPO=$GITHUB/richlowe/$PROG
-BRANCH=illumos-arm64
+BRANCH=illumos-arm64-${VER//./-}
 
-# does not build with gcc 13, yet
-((GCCVER == 13)) && set_gccver 12
 set_arch 64
+# Needed for X/Open curses/termcap
+set_standard -xcurses XPG6 CFLAGS
+
 CTF_FLAGS+=" -s"
 
 XFORM_ARGS="

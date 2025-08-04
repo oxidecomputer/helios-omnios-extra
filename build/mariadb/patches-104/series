@@ -1,9 +1,0 @@
-reorder_includes.patch
-04-dtrace.patch
-05-no-pie.patch
-08-dtrace-invalid-conversion.patch
-auth_socket.diff
-cfi.patch
-openssl3.patch
-openssl3b.patch
-memcntl.patch

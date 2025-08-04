@@ -12,12 +12,12 @@
 # http://www.illumos.org/license/CDDL.
 # }}}
 
-# Copyright 2023 OmniOS Community Edition (OmniOSce) Association.
+# Copyright 2025 OmniOS Community Edition (OmniOSce) Association.
 
 . ../../lib/build.sh
 
 PROG=ruby
-VER=3.1.4
+VER=3.1.7
 PKG=ooce/runtime/ruby-31
 SUMMARY="Ruby"
 DESC="A dynamic, open source programming language "
@@ -29,6 +29,9 @@ set_patchdir patches-$sMAJVER
 
 OPREFIX=$PREFIX
 PREFIX+=/$PROG-$MAJVER
+
+# does not yet build with gcc 14
+((GCCVER > 13)) && set_gccver 13
 
 set_arch 64
 
@@ -55,8 +58,8 @@ init
 download_source $PROG $PROG $VER
 patch_source
 prep_build
+run_autoconf -f
 build
-strip_install
 make_package
 clean_up
 

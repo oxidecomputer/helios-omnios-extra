@@ -12,13 +12,12 @@
 # http://www.illumos.org/license/CDDL.
 # }}}
 
-# Copyright 2023 OmniOS Community Edition (OmniOSce) Association.
+# Copyright 2024 OmniOS Community Edition (OmniOSce) Association.
 
 . ../../lib/build.sh
 
 PROG=fd
-VER=8.7.0
-DASHREV=1
+VER=10.2.0
 PKG=ooce/util/fd
 SUMMARY="find utility"
 DESC="fd is a simple, fast and user-friendly alternative to find"

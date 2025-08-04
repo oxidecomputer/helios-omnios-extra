@@ -13,12 +13,12 @@
 # }}}
 #
 # Copyright 2011-2013 OmniTI Computer Consulting, Inc.  All rights reserved.
-# Copyright 2023 OmniOS Community Edition (OmniOSce) Association.
+# Copyright 2024 OmniOS Community Edition (OmniOSce) Association.
 
 . ../../lib/build.sh
 
 PROG=mbuffer
-VER=20230301
+VER=20241007
 PKG=ooce/system/mbuffer
 SUMMARY="$PROG - measuring buffer"
 DESC="$PROG is a tool for buffering data streams"
@@ -27,7 +27,7 @@ OPREFIX=$PREFIX
 PREFIX+="/$PROG"
 
 set_arch 64
-test_relver '>=' 151045 && set_clangver
+set_clangver
 
 XFORM_ARGS="
     -DOPREFIX=${OPREFIX#/}
@@ -36,6 +36,13 @@ XFORM_ARGS="
     -DPKGROOT=$PROG
 "
 
+pre_configure() {
+    typeset arch=$1
+
+    ! cross_arch $arch && return
+
+    export OBJDUMP="$CROSSTOOLS/$arch/bin/${TRIPLETS[$arch]}-objdump"
+}
 
 init
 download_source $PROG $PROG $VER
