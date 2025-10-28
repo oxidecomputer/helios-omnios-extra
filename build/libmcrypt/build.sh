@@ -12,7 +12,7 @@
 # http://www.illumos.org/license/CDDL.
 # }}}
 
-# Copyright 2020 OmniOS Community Edition (OmniOSce) Association.
+# Copyright 2024 OmniOS Community Edition (OmniOSce) Association.
 
 . ../../lib/build.sh
 
@@ -30,12 +30,25 @@ XFORM_ARGS="
 CONFIGURE_OPTS+="
     --mandir=$PREFIX/share/man
 "
+
+pre_configure() {
+    typeset arch=$1
+
+    ! cross_arch $arch && return
+
+    CONFIGURE_OPTS[$arch]+="
+        ac_cv_func_malloc_0_nonnull=yes
+        ac_cv_func_realloc_0_nonnull=yes
+    "
+}
+
 LDFLAGS[i386]+=" -lssp_ns"
 
 init
 download_source $PROG $PROG $VER
 patch_source
 prep_build
+run_autoconf -f
 build
 run_testsuite check
 strip_install

@@ -12,18 +12,18 @@
 # http://www.illumos.org/license/CDDL.
 # }}}
 
-# Copyright 2023 OmniOS Community Edition (OmniOSce) Association.
+# Copyright 2024 OmniOS Community Edition (OmniOSce) Association.
 
 . ../../lib/build.sh
 
 PROG=tcpdump
-VER=4.99.3
+VER=4.99.5
 PKG=ooce/network/tcpdump
 SUMMARY="tcpdump - TCP packet analyzer"
 DESC="tcpdump - a powerful command-line TCP packet analyzer"
 
 set_arch 64
-test_relver '>=' 151045 && set_clangver
+set_clangver
 
 BUILD_DEPENDS_IPS="
     system/library/pcap

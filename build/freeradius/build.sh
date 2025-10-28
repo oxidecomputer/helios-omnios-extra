@@ -12,14 +12,14 @@
 # http://www.illumos.org/license/CDDL.
 # }}}
 
-# Copyright 2023 OmniOS Community Edition (OmniOSce) Association.
+# Copyright 2024 OmniOS Community Edition (OmniOSce) Association.
 
 . ../../lib/build.sh
 
 PROG=freeradius
 PKG=ooce/server/freeradius
-VER=3.2.2
-TALLOCVER=2.4.0
+VER=3.2.6
+TALLOCVER=2.4.2             # https://www.samba.org/ftp/talloc/
 MAJVER=${VER%.*}            # M.m
 sMAJVER=${MAJVER//./}       # Mm
 SUMMARY="FreeRADIUS $MAJVER"
@@ -36,7 +36,7 @@ XFORM_ARGS="
     -DPREFIX=${PREFIX#/}
     -DOPREFIX=${OPREFIX#/}
     -DPROG=$PROG
-    -DPKGROOT=$PROG-$MAJVER
+    -DPKGROOT=$PROG
     -DVERSION=$MAJVER
     -DsVERSION=$sMAJVER
     -DDsVERSION=-$sMAJVER
@@ -44,9 +44,9 @@ XFORM_ARGS="
     -DGROUP=radius -DGID=74
 "
 
-set_builddir $PROG-server-$VER
 set_arch 64
-set_standard XPG4v2
+set_builddir $PROG-server-$VER
+set_standard XPG7
 
 SKIP_RTIME_CHECK=1
 NO_SONAME_EXPECTED=1
@@ -54,7 +54,9 @@ NO_SONAME_EXPECTED=1
 init
 prep_build
 
-## build talloc dependency
+#########################################################################
+# build libtalloc dependency
+
 save_buildenv
 
 CONFIGURE_OPTS="
@@ -67,6 +69,8 @@ sed '/^\*/q' < $TMPDIR/talloc-$TALLOCVER/talloc.c > $TMPDIR/LICENCE.talloc
 
 restore_buildenv
 
+#########################################################################
+
 note -n "Building $PROG"
 
 CONFIGURE_OPTS="
@@ -78,8 +82,8 @@ CONFIGURE_OPTS="
     --with-talloc-include-dir=$DESTDIR$PREFIX/include
 "
 CONFIGURE_OPTS[amd64]+="
-    --libdir=$PREFIX/lib/amd64
-    --with-talloc-lib-dir=$DESTDIR$PREFIX/lib/amd64
+    --libdir=$PREFIX/${LIBDIRS[amd64]}
+    --with-talloc-lib-dir=$DESTDIR$PREFIX/${LIBDIRS[amd64]}
 "
 
 pre_configure() {
@@ -93,13 +97,13 @@ pre_configure() {
     "
 
     # To find OpenLDAP
-    CPPFLAGS+=" -I$OPREFIX/include"
-    LDFLAGS[$arch]+=" -L$OPREFIX/lib/$arch -R$OPREFIX/lib/$arch"
+    CPPFLAGS+=" -I$OPREFIX/include -DOOCEVER=$RELVER"
+    LDFLAGS[$arch]+=" -L$OPREFIX/${LIBDIRS[$arch]} -R$OPREFIX/${LIBDIRS[$arch]}"
 }
 
 download_source $PROG "$PROG-server" $VER
 patch_source
-MAKE_INSTALL_ARGS="R=$DESTDIR" build -ctf
+MAKE_INSTALL_ARGS="R=$DESTDIR" build
 xform files/freeradius-template.xml > $TMPDIR/$PROG-$sMAJVER.xml
 install_smf ooce $PROG-$sMAJVER.xml
 add_notes README.server-install

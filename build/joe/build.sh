@@ -13,7 +13,7 @@
 # }}}
 
 # Copyright 2011-2013 OmniTI Computer Consulting, Inc.  All rights reserved.
-# Copyright 2020 OmniOS Community Edition (OmniOSce) Association.
+# Copyright 2024 OmniOS Community Edition (OmniOSce) Association.
 
 . ../../lib/build.sh
 
@@ -28,24 +28,27 @@ OPREFIX=$PREFIX
 PREFIX+="/$PROG"
 
 set_arch 64
+test_relver '>=' 151051 && set_clangver
 
 XFORM_ARGS="
     -DPREFIX=${PREFIX#/}
     -DOPREFIX=${OPREFIX#/}
     -DPROG=$PROG
+    -DPKGROOT=$PROG
 "
 
-CONFIGURE_OPTS[amd64]="
+CONFIGURE_OPTS+="
     --prefix=$PREFIX
     --sysconfdir=/etc$OPREFIX
 "
+
+CPPFLAGS+=" -I/usr/include/ncurses"
 
 init
 download_source $PROG $PROG $VER
 patch_source
 prep_build
 build
-strip_install
 make_package
 clean_up
 

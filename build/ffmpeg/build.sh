@@ -12,12 +12,12 @@
 # http://www.illumos.org/license/CDDL.
 # }}}
 
-# Copyright 2023 OmniOS Community Edition (OmniOSce) Association.
+# Copyright 2025 OmniOS Community Edition (OmniOSce) Association.
 
 . ../../lib/build.sh
 
 PROG=ffmpeg
-VER=6.0
+VER=7.1.1
 PKG=ooce/multimedia/ffmpeg
 SUMMARY="ffmpeg"
 DESC="A complete, cross-platform solution to record, "
@@ -25,9 +25,16 @@ DESC+="convert and stream audio and video."
 
 # Previous versions that also need to be built and packaged since compiled
 # software may depend on it.
-PVERS="4.4.3 5.1.2"
+PVERS="4.4.5 5.1.6 6.1.2"
 
-test_relver '>=' 151041 && set_clangver
+set_clangver
+
+# The rav1e ABI changes frequently. Lock the version
+# pulled into each build of ffmpeg.
+RAV1EVER=`pkg_ver rav1e`
+RAV1EVER=${RAV1EVER%.*}
+BUILD_DEPENDS_IPS="=ooce/multimedia/rav1e@$RAV1EVER"
+RUN_DEPENDS_IPS="$BUILD_DEPENDS_IPS"
 
 OPREFIX=$PREFIX
 PREFIX+="/$PROG"
@@ -56,24 +63,17 @@ CONFIGURE_OPTS="
     --enable-libwebp
     --enable-gpl
     --enable-libx264
+    --enable-libx265
     --enable-gnutls
 "
 CONFIGURE_OPTS[i386]="
-    --enable-libx265
     --disable-librav1e
-    --libdir=$OPREFIX/lib
 "
 CONFIGURE_OPTS[amd64]="
-    --enable-libx265
     --enable-librav1e
-    --libdir=$OPREFIX/lib/amd64
 "
 CONFIGURE_OPTS[aarch64]="
-    --enable-cross-compile
-    --disable-asm
-    --disable-libx265
-    --disable-librav1e
-    --libdir=$OPREFIX/lib
+    --enable-librav1e
 "
 
 pre_configure() {
@@ -84,6 +84,10 @@ pre_configure() {
         --cxx=$CXX
     "
 
+    CONFIGURE_OPTS[$arch]+="
+        --libdir=$OPREFIX/${LIBDIRS[$arch]}
+    "
+
     # to find x264.h for builtin check
     CPPFLAGS+=" -I${SYSROOT[$arch]}$OPREFIX/include"
 
@@ -92,6 +96,8 @@ pre_configure() {
     ! cross_arch $arch && return
 
     CONFIGURE_OPTS[$arch]+="
+        --enable-cross-compile
+        --disable-asm
         --sysroot=${SYSROOT[$arch]}
         --host-cc=/opt/gcc-$DEFAULT_GCC_VER/bin/gcc
     "

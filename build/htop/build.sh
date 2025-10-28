@@ -12,32 +12,40 @@
 # http://www.illumos.org/license/CDDL.
 # }}}
 
-# Copyright 2023 OmniOS Community Edition (OmniOSce) Association.
+# Copyright 2025 OmniOS Community Edition (OmniOSce) Association.
 
 . ../../lib/build.sh
 
 PROG=htop
 PKG=ooce/system/htop
-VER=3.2.2
+VER=3.4.0
 SUMMARY="htop"
 DESC="An interactive process viewer for Unix"
 
 set_arch 64
-test_relver '>=' 151041 && set_clangver
-
-# need stack_t, timestruc_t, label_t, ...
-set_standard XPG6
-
-# TODO: pending an illumos fix that defining _XOPEN_SOURCE_EXTENDED
-# does not default to XPG4v2 even if a higher standard is set
-CPPFLAGS+=" -D_XPG5"
+set_clangver
 
 XFORM_ARGS="-DPREFIX=${PREFIX#/}"
+
+# TODO: if we are going to use clang as a cross-compiler we should
+# add support to the framework; this is just a hacky workaround
+# to have at least one consumer of clang for cross-compiling
+pre_configure() {
+    typeset arch=$1
+
+    ! cross_arch $arch && return
+
+    set_clangver
+
+    PATH=$CROSSTOOLS/$arch/bin:$PATH
+    CC+=" --target=${TRIPLETS[$arch]}"
+    CFLAGS[$arch]+=" $CTF_CFLAGS"
+}
 
 init
 download_source $PROG $PROG $VER
 patch_source
-prep_build
+prep_build autoconf -autoreconf
 build
 make_package
 clean_up

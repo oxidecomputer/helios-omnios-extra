@@ -12,12 +12,12 @@
 # http://www.illumos.org/license/CDDL.
 # }}}
 
-# Copyright 2023 OmniOS Community Edition (OmniOSce) Association.
+# Copyright 2024 OmniOS Community Edition (OmniOSce) Association.
 
 . ../../lib/build.sh
 
 PROG=mutt
-VER=2.2.10
+VER=2.2.13
 PKG=ooce/application/mutt
 SUMMARY="$PROG email client"
 DESC="$PROG is a text-based email client"
@@ -26,6 +26,7 @@ OPREFIX=$PREFIX
 PREFIX+=/$PROG
 
 set_arch 64
+test_relver '>=' 151047 && set_clangver
 
 XFORM_ARGS="
     -DOPREFIX=${OPREFIX#/}

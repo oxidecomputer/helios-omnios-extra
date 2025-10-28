@@ -12,15 +12,17 @@
 # http://www.illumos.org/license/CDDL.
 # }}}
 
-# Copyright 2023 OmniOS Community Edition (OmniOSce) Association.
+# Copyright 2024 OmniOS Community Edition (OmniOSce) Association.
 
 . ../../lib/build.sh
 
 PROG=openldap
-VER=2.6.5
+VER=2.6.9
 PKG=ooce/network/openldap
 SUMMARY="open-source LDAP implementation"
 DESC="Open-source implementation of the Lightweight Directory Access Protocol"
+
+test_relver '>=' 151051 && set_clangver
 
 # Previous versions that also need to be built and packaged since compiled
 # software may depend on it.
@@ -86,6 +88,8 @@ MAKE_INSTALL_ARGS+=" STRIP= STRIP_OPTS="
 pre_configure() {
     typeset arch=$1
 
+    LDFLAGS[$arch]+=" -Wl,-R$OPREFIX/${LIBDIRS[$arch]}"
+
     ! cross_arch $arch && return
 
     CONFIGURE_OPTS[$arch]+="
@@ -110,6 +114,7 @@ for pver in $PVERS; do
     CONFIGURE_OPTS[amd64]+=" --disable-slapd"
     download_source $PROG $PROG $pver
     patch_source patches-`echo $pver | cut -d. -f1-2`
+    run_autoconf -f
     build
     restore_variables BUILDDIR EXTRACTED_SRC CONFIGURE_OPTS
 done

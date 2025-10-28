@@ -12,28 +12,42 @@
 # http://www.illumos.org/license/CDDL.
 # }}}
 
-# Copyright 2022 OmniOS Community Edition (OmniOSce) Association.
+# Copyright 2024 OmniOS Community Edition (OmniOSce) Association.
 
 . ../../lib/build.sh
 
 PROG=ninja
 PKG=ooce/developer/ninja
-VER=1.11.1
+VER=1.12.1
 SUMMARY="Ninja"
 DESC="A small build system with a focus on speed"
 
 set_arch 64
-test_relver '>=' 151043 && set_clangver
+set_clangver
 
-CONFIGURE_OPTS[amd64]="
-    -DCMAKE_INSTALL_PREFIX=$PREFIX
+CONFIGURE_OPTS="
     -DCMAKE_BUILD_TYPE=Release
+    -DINSTALL_GTEST=OFF
+    -DCMAKE_POLICY_VERSION_MINIMUM=3.5
 "
 
 TESTSUITE_MAKE="./ninja_test"
 MAKE_TESTSUITE_ARGS=
 
-TESTSUITE_SED='s/\/[0-9][0-9]*\]/\/...]/'
+TESTSUITE_SED='s/  *([0-9][0-9]*  *ms.*//'
+
+pre_configure() {
+    typeset arch=$1
+
+    CONFIGURE_OPTS[$arch]="
+        -DCMAKE_INSTALL_PREFIX=$PREFIX
+        -DCMAKE_INSTALL_LIBDIR=$PREFIX/${LIBDIRS[$arch]}
+    "
+
+    ! cross_arch $arch && return
+
+    CONFIGURE_OPTS[$arch]+=" -DBUILD_TESTING=OFF"
+}
 
 init
 download_source $PROG "v$VER"

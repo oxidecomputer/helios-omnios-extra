@@ -12,18 +12,18 @@
 # http://www.illumos.org/license/CDDL.
 # }}}
 
-# Copyright 2023 OmniOS Community Edition (OmniOSce) Association.
+# Copyright 2025 OmniOS Community Edition (OmniOSce) Association.
 
 . ../../lib/build.sh
 
 PROG=flac
-VER=1.4.3
+VER=1.5.0
 PKG=ooce/audio/flac
 SUMMARY="flac"
 DESC="Free Lossless Audio Codec"
 
 forgo_isaexec
-test_relver '>=' 151041 && set_clangver
+set_clangver
 
 # flac contains BMI instructions even when built on an older CPU
 BMI_EXPECTED=1

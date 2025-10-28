@@ -12,24 +12,21 @@
 # http://www.illumos.org/license/CDDL.
 # }}}
 
-# Copyright 2023 OmniOS Community Edition (OmniOSce) Association.
+# Copyright 2025 OmniOS Community Edition (OmniOSce) Association.
 
 . ../../lib/build.sh
 
 PROG=node
-VER=18.16.0
+VER=18.20.8
 PKG=ooce/runtime/node-18
 SUMMARY="Node.js is an evented I/O framework for the V8 JavaScript engine."
 DESC="Node.js is an evented I/O framework for the V8 JavaScript engine. "
 DESC+="It is intended for writing scalable network programs such as web "
 DESC+="servers."
 
-min_rel 151041
-
 MAJVER=${VER%%.*}
 
 set_arch 64
-set_clangver
 set_builddir $PROG-v$VER
 set_patchdir patches-$MAJVER
 
@@ -55,15 +52,10 @@ BMI_EXPECTED=1
 CONFIGURE_OPTS[amd64]=
 CONFIGURE_OPTS="
     --prefix=$PREFIX
-    --with-dtrace
-    --shared-nghttp2
+    --without-dtrace
     --shared-zlib
     --shared-brotli
 "
-
-# clang++ does not link libatomic automatically
-export LDFLAGS+=" -latomic"
-subsume_arch $BUILDARCH LDFLAGS
 
 init
 download_source $PROG $PROG v$VER

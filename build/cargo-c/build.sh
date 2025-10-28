@@ -12,12 +12,12 @@
 # http://www.illumos.org/license/CDDL.
 # }}}
 
-# Copyright 2023 OmniOS Community Edition (OmniOSce) Association.
+# Copyright 2025 OmniOS Community Edition (OmniOSce) Association.
 
 . ../../lib/build.sh
 
 PROG=cargo-c
-VER=0.9.19
+VER=0.10.13
 PKG=ooce/developer/cargo-c
 SUMMARY="build and install C-ABI compatible dynamic and static libraries"
 DESC="produces and installs a correct pkg-config file, a static library and "
@@ -48,7 +48,7 @@ build() {
 
     pushd $TMPDIR/$BUILDDIR >/dev/null
 
-    logcmd $CARGO install --root=$DESTDIR$PREFIX --path=. \
+    logcmd $CARGO install --locked --root=$DESTDIR$PREFIX --path=. \
         || logerr "build failed"
 
     popd >/dev/null

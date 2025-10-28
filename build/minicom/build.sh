@@ -12,12 +12,12 @@
 # http://www.illumos.org/license/CDDL.
 # }}}
 
-# Copyright 2023 OmniOS Community Edition (OmniOSce) Association.
+# Copyright 2024 OmniOS Community Edition (OmniOSce) Association.
 
 . ../../lib/build.sh
 
 PROG=minicom
-VER=2.8
+VER=2.9
 PKG=ooce/terminal/minicom
 SUMMARY="$PROG - terminal emulator"
 DESC="$PROG is a text-based modem control and terminal emulator "
@@ -27,7 +27,8 @@ OPREFIX=$PREFIX
 PREFIX+=/$PROG
 
 set_arch 64
-set_builddir $PROG-v$VER
+test_relver '>=' 151051 && set_clangver
+set_standard XPG6
 
 XFORM_ARGS="
     -DOPREFIX=${OPREFIX#/}
@@ -39,7 +40,7 @@ XFORM_ARGS="
 CONFIGURE_OPTS="--enable-dfl-port=/dev/cua/b"
 
 init
-download_source $PROG $PROG v$VER
+download_source $PROG $PROG $VER
 patch_source
 prep_build autoconf -autoreconf
 build

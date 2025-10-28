@@ -1,0 +1,35 @@
+#
+# This file and its contents are supplied under the terms of the
+# Common Development and Distribution License ("CDDL"), version 1.0.
+# You may only use this file in accordance with the terms of version
+# 1.0 of the CDDL.
+#
+# A full copy of the text of the CDDL should have accompanied this
+# source. A copy of the CDDL is also available via the Internet at
+# http://www.illumos.org/license/CDDL.
+#
+# Copyright 2020 Carsten Grzemba
+# Copyright 2024 OmniOS Community Edition (OmniOSce) Association.
+
+license COPYING license=GPLv2
+
+<include binlink.mog>
+<include manlink.mog>
+
+group groupname=$(GROUP) gid=98
+user ftpuser=false username=$(USER) uid=98 group=$(GROUP) \
+    gcos-field="$(PROG) User" home-dir=/var/$(PREFIX) password=NP
+
+<transform file path=etc/opt/ooce/squid -> set preserve renamenew>
+
+# See also files/exec_attr
+<transform file path=$(PREFIX)/libexec/amd64/pinger -> set mode 04555>
+
+# Restart services on upgrade
+<transform file path=$(PREFIX)/sbin/squid$ \
+    -> set restart_fmri svc:/ooce/proxy/$(PROG):default>
+
+<transform dir path=var/$(PREFIX)/run/squid -> drop>
+<transform dir path=var/$(PREFIX) -> set group squid>
+<transform dir path=var/$(PREFIX) -> set owner squid>
+

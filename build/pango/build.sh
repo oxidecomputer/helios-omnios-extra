@@ -12,19 +12,23 @@
 # http://www.illumos.org/license/CDDL.
 # }}}
 
-# Copyright 2022 OmniOS Community Edition (OmniOSce) Association.
+# Copyright 2025 OmniOS Community Edition (OmniOSce) Association.
 
 . ../../lib/build.sh
 
 PROG=pango
-VER=1.50.11
+VER=1.55.5
 PKG=ooce/library/pango
 SUMMARY="pango"
 DESC="Pango is a library for laying out and rendering of text"
 
+forgo_isaexec
+
 # Dependencies
-HARFBUZZVER=5.2.0
-FRIBIDIVER=1.0.12
+HARFBUZZVER=10.1.0
+FRIBIDIVER=1.0.16
+
+export CC_FOR_BUILD=/opt/gcc-$DEFAULT_GCC_VER/bin/gcc
 
 # The icu4c ABI changes frequently. Lock the version
 # pulled into each build of harfbuzz.
@@ -48,11 +52,26 @@ XFORM_ARGS="
     -DFRIBIDI=$FRIBIDIVER
 "
 
+save_variable PKG_CONFIG_PATH
+
 pre_configure() {
     typeset arch=$1
 
-    LDFLAGS[$arch]+=" -L$PREFIX/${LIBDIRS[$arch]} -R$PREFIX/${LIBDIRS[$arch]}"
+    _dd=$DESTDIR
+    cross_arch $arch && _dd+=.$arch
+    CPPFLAGS+=" -I$_dd$PREFIX/include/fribidi -I$_dd$PREFIX/include/harfbuzz"
+    LDFLAGS[$arch]+=" -L$_dd$PREFIX/${LIBDIRS[$arch]}"
+    LDFLAGS[$arch]+=" -L${SYSROOT[$arch]}$PREFIX/${LIBDIRS[$arch]}"
+    LDFLAGS[$arch]+=" -R$PREFIX/${LIBDIRS[$arch]}"
     [ $arch = i386 ] && LDFLAGS[$arch]+=" -lssp_ns"
+
+    restore_variable PKG_CONFIG_PATH
+
+    _pkgconfpath=${PKG_CONFIG_PATH[$arch]}
+    PKG_CONFIG_PATH[$arch]="$_dd$PREFIX/${LIBDIRS[$arch]}/pkgconfig"
+    PKG_CONFIG_PATH[$arch]+=":$_pkgconfpath"
+    subsume_arch $arch PKG_CONFIG_PATH
+    export PKG_CONFIG_PATH
 
     export MAKE
 }
@@ -64,46 +83,43 @@ post_configure() {
 }
 
 init
-prep_build
+prep_build meson
 
 ######################################################################
 
-EXPECTED_OPTIONS="CAIRO CAIRO_FT FREETYPE GLIB"
-build_dependency -merge -noctf harfbuzz harfbuzz-$HARFBUZZVER \
+save_buildenv
+
+CONFIGURE_OPTS="--prefix=$PREFIX"
+CONFIGURE_OPTS[aarch64]="
+    --cross-file $BLIBDIR/meson-aarch64-gcc
+"
+
+build_dependency -meson -multi -merge -noctf fribidi fribidi-$FRIBIDIVER \
+    fribidi fribidi $FRIBIDIVER
+
+######################################################################
+
+CXXFLAGS[aarch64]+=" -mno-outline-atomics"
+
+build_dependency -meson -multi -merge -noctf harfbuzz harfbuzz-$HARFBUZZVER \
     harfbuzz harfbuzz $HARFBUZZVER
 
-export CPPFLAGS+=" -I$DEPROOT/$PREFIX/include/harfbuzz"
+restore_buildenv
 
 ######################################################################
-
-EXPECTED_OPTIONS=""
-build_dependency -merge -noctf fribidi fribidi-$FRIBIDIVER \
-    fribidi fribidi $FRIBIDIVER
-export CPPFLAGS+=" -I$DEPROOT/$PREFIX/include/fribidi"
-
-######################################################################
-
-if ((EXTRACT_MODE == 0)); then
-    logcmd find $DEPROOT -name \*.la -exec rm {} +
-    logcmd mv $DEPROOT/$PREFIX/bin/amd64/* $DEPROOT/$PREFIX/bin/ \
-        || logerr "relocate dependency binaries"
-    logcmd rm -rf $DEPROOT/$PREFIX/bin/{i386,amd64}
-fi
-
-for arch in $DEFAULT_ARCH; do
-    LDFLAGS[$arch]+=" -L$DEPROOT/$PREFIX/${LIBDIRS[$arch]}"
-    addpath PKG_CONFIG_PATH[$arch] $DEPROOT/$PREFIX/${LIBDIRS[$arch]}/pkgconfig
-done
 
 CONFIGURE_OPTS="
     --prefix=$PREFIX
     -Db_asneeded=false
-    -Dgtk_doc=false
-    -Dinstall-tests=false
+    -Ddocumentation=false
     -Dintrospection=disabled
 "
-CONFIGURE_OPTS[i386]=" --libdir=$PREFIX/lib "
-CONFIGURE_OPTS[amd64]=" --libdir=$PREFIX/lib/amd64 "
+CONFIGURE_OPTS[i386]=" --libdir=$PREFIX/${LIBDIRS[i386]} "
+CONFIGURE_OPTS[amd64]=" --libdir=$PREFIX/${LIBDIRS[amd64]} "
+CONFIGURE_OPTS[aarch64]="
+    --libdir=$PREFIX/${LIBDIRS[aarch64]}
+    --cross-file $BLIBDIR/meson-aarch64-gcc
+"
 
 EXPECTED_OPTIONS="CAIRO CAIRO_FREETYPE CAIRO_PDF CAIRO_PS CAIRO_PNG FREETYPE"
 
@@ -125,15 +141,14 @@ fixup() {
     for obj in $P/bin/* $P/lib/*.so* $P/lib/amd64/*.so*; do
         [ -f "$obj" ] || continue
         logmsg "--- fixing runpath for $obj"
-        if file $obj | egrep -s 'ELF 64-bit'; then
+        if $FILE $obj | egrep -s 'ELF 64-bit'; then
             logcmd elfedit -e "dyn:value -s RPATH $rpath64" $obj
             logcmd elfedit -e "dyn:value -s RUNPATH $rpath64" $obj
-        elif file $obj | egrep -s 'ELF 32-bit'; then
+        elif $FILE $obj | egrep -s 'ELF 32-bit'; then
             logcmd elfedit -e "dyn:value -s RPATH $rpath32" $obj
             logcmd elfedit -e "dyn:value -s RUNPATH $rpath32" $obj
         else
-            file $obj
-            logerr "BAD"
+            logerr "failed to determine ELF class of '$obj'"
         fi
     done
     popd >/dev/null
@@ -141,9 +156,9 @@ fixup() {
 
 note -n "-- Building $PROG"
 
+set_builddir $PROG-$VER
 download_source $PROG $PROG $VER
 patch_source
-prep_build meson -keep
 build
 fixup
 make_package

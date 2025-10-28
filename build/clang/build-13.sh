@@ -12,7 +12,7 @@
 # http://www.illumos.org/license/CDDL.
 # }}}
 
-# Copyright 2022 OmniOS Community Edition (OmniOSce) Association.
+# Copyright 2024 OmniOS Community Edition (OmniOSce) Association.
 
 . ../../lib/build.sh
 
@@ -25,7 +25,7 @@ DESC+="infrastructure for languages in the C language family (C, C++, "
 DESC+="Objective C/C++, OpenCL, CUDA, and RenderScript) for the LLVM project"
 
 set_arch 64
-[ $RELVER -ge 151041 ] && set_clangver
+set_clangver
 set_builddir llvm-project-$VER.src/$PROG
 
 SKIP_RTIME_CHECK=1
@@ -37,7 +37,10 @@ set_patchdir patches-$MAJVER
 # Using the = prefix to require the specific matching version of llvm
 BUILD_DEPENDS_IPS="=ooce/developer/llvm-$MAJVER@$VER"
 
-RUN_DEPENDS_IPS="=ooce/developer/llvm-$MAJVER@$MINVER"
+RUN_DEPENDS_IPS="
+    =ooce/developer/llvm-$MAJVER@$MINVER
+    developer/gcc$GCCVER
+"
 
 OPREFIX=$PREFIX
 PREFIX+=/llvm-$MAJVER

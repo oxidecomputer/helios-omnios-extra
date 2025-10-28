@@ -8,6 +8,7 @@ PASS: custom_dir_EXIF_231
 PASS: defer_strile_loading
 PASS: defer_strile_writing
 PASS: test_directory
+PASS: test_IFD_enlargement
 PASS: test_open_options
 PASS: test_append_to_strip
 PASS: test_ifd_loop_detection
@@ -92,8 +93,8 @@ PASS: tiff2rgba-rgb-3c-8b.sh
 PASS: testfax4.sh
 PASS: testfax3_bug_513.sh
 PASS: testdeflatelaststripextradata.sh
-# TOTAL: 94
-# PASS:  94
+# TOTAL: 95
+# PASS:  95
 # SKIP:  0
 # XFAIL: 0
 # FAIL:  0

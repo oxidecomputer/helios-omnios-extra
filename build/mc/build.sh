@@ -12,13 +12,13 @@
 # http://www.illumos.org/license/CDDL.
 # }}}
 
-# Copyright 2023 OmniOS Community Edition (OmniOSce) Association.
+# Copyright 2025 OmniOS Community Edition (OmniOSce) Association.
 
 . ../../lib/build.sh
 
 PROG=mc
 PKG=ooce/application/mc
-VER=4.8.29
+VER=4.8.33
 SUMMARY="Midnight Commander"
 DESC="A feature rich full-screen text mode application that allows you to copy, "
 DESC+="move and delete files and whole directory trees, search for files and run "
@@ -32,6 +32,7 @@ OPREFIX=$PREFIX
 PREFIX+=/$PROG
 
 set_arch 64
+test_relver '>=' 151047 && set_clangver
 
 XFORM_ARGS="
     -DOPREFIX=${OPREFIX#/}
@@ -44,8 +45,12 @@ CONFIGURE_OPTS="
     --prefix=$PREFIX
     --sysconfdir=/etc/$PREFIX
 "
-LDFLAGS[amd64]+=" -R$OPREFIX/lib/amd64"
-LDFLAGS[aarch64]+=" -R$OPREFIX/lib"
+
+pre_configure() {
+    typeset arch=$1
+
+    LDFLAGS[$arch]+=" -Wl,-R$OPREFIX/${LIBDIRS[$arch]}"
+}
 
 init
 download_source $PROG $PROG $VER

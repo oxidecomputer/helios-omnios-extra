@@ -12,12 +12,12 @@
 # http://www.illumos.org/license/CDDL.
 # }}}
 
-# Copyright 2022 OmniOS Community Edition (OmniOSce) Association.
+# Copyright 2024 OmniOS Community Edition (OmniOSce) Association.
 
 . ../../lib/build.sh
 
 PROG=libusb
-VER=1.0.26
+VER=1.0.27
 PKG=ooce/library/libusb-1
 SUMMARY="libusb 1.0"
 DESC="A cross-platform library to access USB devices"
@@ -32,6 +32,7 @@ CONFIGURE_OPTS="--disable-static"
 init
 download_source $PROG $PROG $VER
 patch_source
+run_autoreconf -fi
 prep_build
 build
 make_package

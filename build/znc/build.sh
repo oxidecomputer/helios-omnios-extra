@@ -12,12 +12,12 @@
 # http://www.illumos.org/license/CDDL.
 # }}}
 #
-# Copyright 2022 OmniOS Community Edition (OmniOSce) Association.
+# Copyright 2024 OmniOS Community Edition (OmniOSce) Association.
 
 . ../../lib/build.sh
 
 PROG=znc
-VER=1.8.2
+VER=1.9.1
 VERHUMAN=$VER
 PKG=ooce/network/znc
 SUMMARY="$PROG - an advanced IRC bouncer"
@@ -35,7 +35,7 @@ BUILD_DEPENDS_IPS="=ooce/library/icu4c@$ICUVER"
 RUN_DEPENDS_IPS="$BUILD_DEPENDS_IPS"
 
 set_arch 64
-test_relver '>=' 151041 && set_clangver
+set_clangver
 
 XFORM_ARGS="
     -DOPREFIX=${OPREFIX#/}
@@ -47,25 +47,47 @@ XFORM_ARGS="
 SKIP_RTIME_CHECK=1
 NO_SONAME_EXPECTED=1
 
-install_modules() {
-    for f in $SRCDIR/files/*.cpp; do
-        bf=`basename $f`
-        logmsg "Installing module: $bf"
-        logcmd cp $f $TMPDIR/$BUILDDIR/modules/
-    done
-}
-
 CONFIGURE_OPTS="
     -DCMAKE_BUILD_TYPE=Release
     -DCMAKE_INSTALL_PREFIX=$PREFIX
     -DCMAKE_SKIP_RPATH=ON
+    -DWANT_PERL=false
+    -DWANT_PYTHON=false
+    -DWANT_TCL=false
 "
-
-CONFIGURE_OPTS[amd64]="
-    -DCMAKE_INSTALL_LIBDIR=lib
-"
+CONFIGURE_OPTS[amd64]="-DCMAKE_INSTALL_LIBDIR=lib"
+CONFIGURE_OPTS[aarch64]="-DCMAKE_INSTALL_LIBDIR=lib"
 LDFLAGS+=" -lsocket"
-LDFLAGS[amd64]+=" -Wl,-R$OPREFIX/lib/amd64"
+
+pre_build() {
+    for f in $SRCDIR/files/*.cpp; do
+        bf=`basename $f`
+        logmsg "Installing module: $bf"
+        logcmd $CP $f $TMPDIR/$EXTRACTED_SRC/modules/ \
+            || logerr "failed to install module: $bf"
+    done
+}
+
+# TODO: if we are going to use clang as a cross-compiler we should
+# add support to the framework; this is just a hacky workaround
+# to have at least one consumer of clang++ for cross-compiling
+pre_configure() {
+    typeset arch=$1
+
+    LDFLAGS[$arch]+=" -Wl,-R$OPREFIX/${LIBDIRS[$arch]}"
+
+    ! cross_arch $arch && return
+
+    set_clangver
+
+    PATH=$CROSSTOOLS/$arch/bin:$PATH
+    CXX+=" --target=${TRIPLETS[$arch]}"
+    LDFLAGS[$arch]+=" -L${SYSROOT[$arch]}$OPREFIX/${LIBDIRS[$arch]}"
+}
+
+post_install() {
+    install_smf network znc.xml
+}
 
 tests() {
     for key in SSL IPv6 Zlib; do
@@ -76,12 +98,10 @@ tests() {
 init
 download_source $PROG $PROG $VER
 patch_source
-install_modules
 prep_build cmake+ninja
 build -noctf    # C++
 tests
 strip_install
-install_smf network znc.xml
 make_package
 clean_up
 

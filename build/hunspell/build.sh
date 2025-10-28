@@ -12,7 +12,7 @@
 # http://www.illumos.org/license/CDDL.
 # }}}
 
-# Copyright 2023 OmniOS Community Edition (OmniOSce) Association.
+# Copyright 2024 OmniOS Community Edition (OmniOSce) Association.
 
 . ../../lib/build.sh
 
@@ -22,8 +22,10 @@ PKG=ooce/text/hunspell
 SUMMARY="$PROG"
 DESC="$PROG - spell checker"
 
+# https://github.com/LibreOffice/dictionaries/
+LIBOVER=libreoffice-24.2.3.2
 # https://github.com/fin-w/LibreOffice-Geiriadur-Cymraeg-Welsh-Dictionary
-CYVER=1.2
+CYVER=1.11
 
 OPREFIX=$PREFIX
 PREFIX+=/$PROG
@@ -54,13 +56,14 @@ CONFIGURE_OPTS[aarch64]+="
 "
 
 CPPFLAGS+=" -I/usr/include/ncurses"
-CXXFLAGS[aarch64]+=" -mno-outline-atomics -mtls-dialect=trad"
+CXXFLAGS[aarch64]+=" -mtls-dialect=trad"
 
 post_install() {
     [ $1 = i386 ] && return
 
     note -n "getting dictionaries"
-    dictbaseurl="https://cgit.freedesktop.org/libreoffice/dictionaries/plain"
+    dictbaseurl="https://raw.githubusercontent.com/LibreOffice/"
+    dictbaseurl+="dictionaries/$LIBOVER"
     cybaseurl="https://raw.githubusercontent.com/fin-w/"
     cybaseurl+="LibreOffice-Geiriadur-Cymraeg-Welsh-Dictionary/v$CYVER"
 

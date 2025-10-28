@@ -12,13 +12,13 @@
 # http://www.illumos.org/license/CDDL.
 # }}}
 
-# Copyright 2023 OmniOS Community Edition (OmniOSce) Association.
+# Copyright 2025 OmniOS Community Edition (OmniOSce) Association.
 
 . ../../lib/build.sh
 
 PROG=gdb
 PKG=ooce/developer/gdb
-VER=13.2
+VER=16.2
 SUMMARY="$PROG - GNU Debugger"
 DESC="The GNU debugger"
 
@@ -30,6 +30,8 @@ OPREFIX=$PREFIX
 PREFIX+=/$PROG
 
 set_arch 64
+# Needed for X/Open curses/termcap
+set_standard -xcurses XPG6
 
 XFORM_ARGS="
     -DPREFIX=${PREFIX#/}
@@ -98,8 +100,21 @@ EOM
     popd
 
     logmsg "--- building feature files"
+    export XMLTOC
     logcmd $MAKE -C $TMPDIR/$EXTRACTED_SRC/gdb/features \
-        GDB=$OOCEBIN/gdb cfiles \
+        GDB=$OOCEBIN/gdb \
+        XMLTOC="
+            i386/amd64-avx-illumos.xml
+            i386/amd64-illumos.xml
+            i386/i386-avx-illumos.xml
+            i386/i386-illumos.xml
+            i386/i386-mmx-illumos.xml
+        " \
+        FEATURE_XMLFILES="
+            i386/32bit-illumos.xml
+            i386/64bit-illumos.xml
+        " \
+        cfiles \
         || logerr "feature build failed"
 
     logmsg -n "File generation successful"

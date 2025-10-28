@@ -12,12 +12,12 @@
 # http://www.illumos.org/license/CDDL.
 # }}}
 
-# Copyright 2023 OmniOS Community Edition (OmniOSce) Association.
+# Copyright 2024 OmniOS Community Edition (OmniOSce) Association.
 
 . ../../lib/build.sh
 
 PROG=gnuplot
-VER=5.4.6
+VER=6.0.1
 PKG=ooce/application/gnuplot
 SUMMARY="gnuplot"
 DESC="A portable command-line driven graphing utility"
@@ -28,6 +28,7 @@ OPREFIX=$PREFIX
 PREFIX+="/$PROG"
 
 set_arch 64
+test_relver '>=' 151049 && set_clangver
 
 XFORM_ARGS="
     -DOPREFIX=${OPREFIX#/}
@@ -36,8 +37,10 @@ XFORM_ARGS="
     -DPKGROOT=$PROG
 "
 
+CONFIGURE_OPTS+=" --with-qt=no"
+
 CPPFLAGS+=" -I$OPREFIX/include"
-LDFLAGS[amd64]+=" -L$OPREFIX/lib/amd64 -R$OPREFIX/lib/amd64"
+LDFLAGS[amd64]+=" -L$OPREFIX/lib/amd64 -Wl,-R$OPREFIX/lib/amd64"
 
 init
 download_source $PROG $PROG $VER

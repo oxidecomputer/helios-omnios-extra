@@ -12,12 +12,12 @@
 # http://www.illumos.org/license/CDDL.
 # }}}
 
-# Copyright 2023 OmniOS Community Edition (OmniOSce) Association.
+# Copyright 2025 OmniOS Community Edition (OmniOSce) Association.
 
 . ../../lib/build.sh
 
 PROG=bat
-VER=0.23.0
+VER=0.25.0
 PKG=ooce/util/bat
 SUMMARY="A cat clone with wings"
 DESC="A cat(1) clone with syntax highlighting and Git integration."
@@ -28,14 +28,17 @@ BUILD_DEPENDS_IPS="
 
 set_arch 64
 
-# ansi_colours wants gnu-ar
-export AR="$USRBIN/gar"
+pre_build() {
+    typeset arch=$1
+
+    export RUSTFLAGS="-C link-arg=-R$PREFIX/${LIBDIRS[$arch]}"
+}
 
 init
 download_source $PROG v$VER
 patch_source
 prep_build
-build_rust
+RUSTONIG_SYSTEM_LIBONIG=1 build_rust
 install_rust
 strip_install
 make_package

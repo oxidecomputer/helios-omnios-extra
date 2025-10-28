@@ -17,7 +17,7 @@
 . ../../lib/build.sh
 
 PROG=nagios-plugins
-VER=2.4.3
+VER=2.4.8
 PKG=ooce/application/nagios-plugins
 SUMMARY="Plugins for Nagios"
 DESC="This is the nagios-plugins package for Nagios."
@@ -37,6 +37,12 @@ RUN_DEPENDS_IPS+="
 
 OPREFIX=$PREFIX
 PREFIX+="/$PROG"
+
+XFORM_ARGS="
+    -DPREFIX=${PREFIX#/}
+    -DOPREFIX=${OPREFIX#/}
+    -DPROG=$PROG
+"
 
 MAKE_INSTALL_TARGET="
     install

@@ -12,18 +12,21 @@
 # http://www.illumos.org/license/CDDL.
 # }}}
 
-# Copyright 2023 OmniOS Community Edition (OmniOSce) Association.
+# Copyright 2025 OmniOS Community Edition (OmniOSce) Association.
 
 . ../../lib/build.sh
 
 PROG=emacs
-VER=29.1
+VER=30.1
 PKG=ooce/editor/emacs
 SUMMARY="Emacs editor"
 DESC="An extensible, customizable, free/libre text editor - and more."
 
 BUILD_DEPENDS_IPS="library/ncurses"
-RUN_DEPENDS_IPS="file/gnu-findutils"
+RUN_DEPENDS_IPS="
+    file/gnu-findutils
+    ooce/text/tree-sitter-langs
+"
 
 OPREFIX=$PREFIX
 PREFIX+=/$PROG
@@ -49,6 +52,8 @@ CONFIGURE_OPTS="
     --prefix=$PREFIX
     --without-x
     --with-gif=no
+    --with-tree-sitter
+    --with-json
     ac_cv_sys_long_file_names=yes
     ac_cv_header_sys_inotify_h=no
     ac_cv_func_inotify_init=no

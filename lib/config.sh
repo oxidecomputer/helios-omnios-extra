@@ -142,7 +142,7 @@ else
 fi
 BRAICH_REPO=https://pkg.omnios.org/bloody/braich
 
-ARCHIVE_TYPES="tar.xz tar.bz2 tar.gz tgz tar zip"
+ARCHIVE_TYPES="tar.zst tar.xz tar.bz2 tar.lz tar.gz tgz tar zip"
 
 # Default prefix for packages (may be overridden)
 PREFIX=/opt/ooce
@@ -171,6 +171,11 @@ typeset -A TRIPLETS=(
     [i386]=i386-pc-solaris2.11
     [amd64]=x86_64-pc-solaris2.11
     [aarch64]=aarch64-unknown-solaris2.11
+)
+
+typeset -A RUSTTRIPLETS=(
+    [amd64]=x86_64-unknown-illumos
+    [aarch64]=aarch64-unknown-illumos
 )
 
 #############################################################################
@@ -202,6 +207,7 @@ PERL_MAKE_TEST=1
 # Paths to common tools
 #############################################################################
 USRBIN=/usr/bin
+USRHASBIN=/usr/has/bin
 OOCEOPT=/opt/ooce
 OOCEBIN=$OOCEOPT/bin
 SFWBIN=/usr/sfw/bin
@@ -211,17 +217,23 @@ GNUBIN=/usr/gnu/bin
 # Define variables for standard utilities so that we can choose to run the
 # native version even if a build script modifies the path to put GNUBIN first.
 for util in \
-    basename cat comm cut dis tput digest mktemp sort sed tee rm mv cp mkdir \
-    rmdir readlink ln ls chmod touch grep time find fgrep egrep uniq stat \
-    strip sleep tail date
+    basename cat comm cut diff dis tput digest mktemp sort sed tee rm mv cp \
+    mkdir rmdir readlink ln ls chmod touch grep time find fgrep egrep uniq \
+    stat strip sleep tail date
 do
     declare -n _var=${util^^}
     declare -g _var=$USRBIN/$util
     unset -vn _var
 done
 
+AR=$USRBIN/ar
 CURL=$USRBIN/curl
 ELFEDIT=$USRBIN/elfedit
+if test_relver '>=' 151053; then
+    FILE=$USRHASBIN/file
+else
+    FILE=$USRBIN/file
+fi
 GIT=$USRBIN/git
 LZIP=$USRBIN/lzip
 NAWK=$USRBIN/awk
@@ -274,16 +286,19 @@ CW=$ONBLDBIN/i386/cw
 GENOFFSETS=$ONBLDBIN/genoffsets
 CTF_FLAGS=
 typeset -A CTFCFLAGS
-CTFCFLAGS[_]="-gdwarf-2"
-CTFCFLAGS[10]="-gstrict-dwarf"
-CTFCFLAGS[11]="-gstrict-dwarf"
-CTFCFLAGS[12]="-gstrict-dwarf"
-CTFCFLAGS[13]="-gstrict-dwarf"
+CTFCFLAGS[_]="-gstrict-dwarf"
+CTFCFLAGS[10]="-gdwarf-2"
+CTFCFLAGS[11]="-gdwarf-2"
+CTFCFLAGS[12]="-gdwarf-2"
+CTFCFLAGS[13]="-gdwarf-2"
+CTFCFLAGS[14]="-gdwarf-4"
 GENOFFSETS_CFLAGS="
     ${CTFCFLAGS[_]}
     -_gcc=-fno-eliminate-unused-debug-symbols
     -_gcc=-fno-eliminate-unused-debug-types
 "
+
+test_relver '>=' 151053 && GENOFFSETS_CFLAGS+=" -std=gnu99"
 
 CTF_DEFAULT=1
 
@@ -355,7 +370,8 @@ case $RELVER in
     151039|151040)      DEFAULT_GCC_VER=11; ILLUMOS_GCC_VER=7 ;;
     15104[12])          DEFAULT_GCC_VER=11; ILLUMOS_GCC_VER=10 ;;
     15104[3-6])         DEFAULT_GCC_VER=12; ILLUMOS_GCC_VER=10 ;;
-    15104[7-9])         DEFAULT_GCC_VER=13; ILLUMOS_GCC_VER=10 ;;
+    15104[7-9]|151050)  DEFAULT_GCC_VER=13; ILLUMOS_GCC_VER=10 ;;
+    15105[1-9])         DEFAULT_GCC_VER=14; ILLUMOS_GCC_VER=10 ;;
     *) logerr "Unknown release '$RELVER', can't select compiler." ;;
 esac
 
@@ -363,13 +379,18 @@ esac
 case $RELVER in
     15104[3-4])         DEFAULT_CLANG_VER=14 ;;
     15104[5-6])         DEFAULT_CLANG_VER=15 ;;
-    15104[7-9])         DEFAULT_CLANG_VER=16 ;;
+    15104[7-8])         DEFAULT_CLANG_VER=16 ;;
+    151049|151050)      DEFAULT_CLANG_VER=17 ;;
+    15105[1-2])         DEFAULT_CLANG_VER=18 ;;
+    15105[3-4])         DEFAULT_CLANG_VER=19 ;;
+    15105[5-9])         DEFAULT_CLANG_VER=20 ;;
     *)                  DEFAULT_CLANG_VER=13 ;;
 esac
 
-DEFAULT_GO_VER=1.19
-DEFAULT_NODE_VER=16
-DEFAULT_RUBY_VER=3.0
+DEFAULT_GO_VER=1.24
+DEFAULT_NODE_VER=22
+DEFAULT_RUBY_VER=3.4
+DEFAULT_ZIG_VER=0.12
 
 PYTHON2VER=2.7
 case $RELVER in
@@ -377,7 +398,9 @@ case $RELVER in
     15103[7-9])         PYTHON3VER=3.9 ;;
     151040)             PYTHON3VER=3.9 ;;
     15104[1-4])         PYTHON3VER=3.10 ;;
-    15104[5-9])         PYTHON3VER=3.11 ;;
+    15104[5-8])         PYTHON3VER=3.11 ;;
+    151049|15105[0-2])  PYTHON3VER=3.12 ;;
+    15105[3-9])         PYTHON3VER=3.13 ;;
     *)                  PYTHON3VER=3.5 ;;
 esac
 # Specify default Python version for building packages
@@ -391,8 +414,8 @@ else
 fi
 
 # Default database versions to bundle into packages which use the libraries
-PGSQLVER=14
-MARIASQLVER=10.6
+PGSQLVER=17
+MARIASQLVER=11.4
 
 # Options to turn compiler features on and off. Associative array keyed by
 # compiler version or _ for all versions.
@@ -418,16 +441,20 @@ FCFLAGS[10]+=" -fno-aggressive-loop-optimizations"
 FCFLAGS[11]+=" -fno-aggressive-loop-optimizations"
 FCFLAGS[12]+=" -fno-aggressive-loop-optimizations"
 FCFLAGS[13]+=" -fno-aggressive-loop-optimizations"
+FCFLAGS[14]+=" -fno-aggressive-loop-optimizations"
 
 # Flags to enable particular standards; see standards(7)
 typeset -A STANDARDS
 
 STANDARDS[POSIX]="-D_POSIX_C_SOURCE=200112L -D_POSIX_PTHREAD_SEMANTICS"
+STANDARDS[POSIX+EXTENSIONS]="${STANDARDS[POSIX]} -D__EXTENSIONS__=1"
 STANDARDS[XPG3]="-D_XOPEN_SOURCE"
 STANDARDS[XPG4]="-D_XOPEN_SOURCE -D_XOPEN_VERSION=4"
 STANDARDS[XPG4v2]="-D_XOPEN_SOURCE -D_XOPEN_SOURCE_EXTENDED=1"
 STANDARDS[XPG5]="-D_XOPEN_SOURCE=500 -D__EXTENSIONS__=1"
 STANDARDS[XPG6]="-D_XOPEN_SOURCE=600 -D__EXTENSIONS__=1"
+STANDARDS[XPG7]="-D_XOPEN_SOURCE=700 -D__EXTENSIONS__=1"
+STANDARDS[XPG8]="-D_XOPEN_SOURCE=800 -D__EXTENSIONS__=1"
 
 typeset -A CFLAGS=(
     [i386]=-m32
@@ -476,7 +503,7 @@ DESTDIR=
 # Flags for building kernel modules
 #############################################################################
 
-CFLAGS[kmod]="
+CFLAGS[kmod_amd64]="
     -mcmodel=kernel
     -fno-strict-aliasing -fno-unit-at-a-time
     -fno-optimize-sibling-calls -ffreestanding -mno-red-zone
@@ -488,7 +515,20 @@ CFLAGS[kmod]="
     -mindirect-branch=thunk-extern -mindirect-branch-register
     -fno-asynchronous-unwind-tables -fstack-protector-strong
 "
-LDFLAGS[kmod]="-ztype=kmod"
+LDFLAGS[kmod_amd64]="-ztype=kmod"
+
+CFLAGS[kmod_aarch64]="
+    -mcmodel=large
+    -fno-strict-aliasing -fno-unit-at-a-time
+    -fno-optimize-sibling-calls -ffreestanding -msave-args
+    -mgeneral-regs-only -mstrict-align -mtls-dialect=trad
+    -Winline -fno-inline-small-functions -fno-inline-functions-called-once
+    -fno-ipa-cp -fno-ipa-icf -fno-clone-functions -fno-reorder-functions
+    -fno-reorder-blocks-and-partition
+    --param=max-inline-insns-single=450 -fno-shrink-wrap
+    -fno-asynchronous-unwind-tables -fstack-protector-strong
+"
+LDFLAGS[kmod_aarch64]="-ztype=kmod"
 
 #############################################################################
 # Configuration of the packaged software

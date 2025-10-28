@@ -12,12 +12,12 @@
 # http://www.illumos.org/license/CDDL.
 # }}}
 #
-# Copyright 2023 OmniOS Community Edition (OmniOSce) Association.
+# Copyright 2025 OmniOS Community Edition (OmniOSce) Association.
 
 . ../../lib/build.sh
 
 PROG=openvpn
-VER=2.6.5
+VER=2.6.14
 PKG=ooce/network/openvpn
 LZOVER=2.10
 SUMMARY="OpenVPN"
@@ -27,7 +27,7 @@ DESC+="or for networking Cloud data centers"
 
 # PLUGIN VERSIONS
 # source from https://github.com/skvadrik/re2c (required to build auth-ldap)
-RE2CVER=2.0.3
+RE2CVER=3.1
 AUTHLDAPVER=2.0.4
 
 SKIP_LICENCES=Various
@@ -65,6 +65,8 @@ restore_buildenv
 
 #########################################################################
 
+CPPFLAGS+=" -DOOCEVER=$RELVER"
+
 CONFIGURE_OPTS[amd64]+="
     --includedir=$OPREFIX/include
     --libdir=$OPREFIX/lib/amd64
@@ -72,7 +74,7 @@ CONFIGURE_OPTS[amd64]+="
 
 download_source $PROG $PROG $VER
 patch_source
-run_autoreconf -i
+run_autoreconf -fi
 build
 install_smf ooce network-openvpn.xml
 make_package $PROG.mog
@@ -102,6 +104,11 @@ XFORM_ARGS="
     -DOPREFIX=${OPREFIX#/}
     -DPROG=$PROG -DVER=$VER
 "
+
+export MAKE
+
+# does not yet build with gcc 14
+((GCCVER > 13)) && set_gccver 13
 
 init
 prep_build

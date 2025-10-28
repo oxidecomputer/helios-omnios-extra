@@ -12,7 +12,7 @@
 # http://www.illumos.org/license/CDDL.
 # }}}
 
-# Copyright 2023 OmniOS Community Edition (OmniOSce) Association.
+# Copyright 2024 OmniOS Community Edition (OmniOSce) Association.
 
 . ../../lib/build.sh
 
@@ -25,13 +25,16 @@ DESC+="into the H.264/MPEG-4 AVC compression format"
 
 set_builddir $PROG-stable
 forgo_isaexec
-test_relver '>=' 151041 && set_clangver
+set_clangver
 
 # x264 contains BMI instructions even when built on an older CPU
 BMI_EXPECTED=1
 
+# we don't want x264 to have a (circular) runtime dependency on ffmpeg
 CONFIGURE_OPTS="
     --enable-shared
+    --disable-swscale
+    --disable-lavf
 "
 CONFIGURE_OPTS[i386]+="
     --enable-pic
@@ -56,9 +59,6 @@ CFLAGS+=" -O3"
 
 LDFLAGS[i386]+=" -lssp_ns"
 LDFLAGS[amd64]+=" -Wl,-R$PREFIX/lib/amd64"
-
-# we don't want x264 to have a (circular) runtime dependency on ffmpeg
-PKG_CONFIG_PATH=()
 
 init
 download_source $PROG $PROG-stable $VER

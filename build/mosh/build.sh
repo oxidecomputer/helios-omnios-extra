@@ -12,7 +12,7 @@
 # http://www.illumos.org/license/CDDL.
 # }}}
 
-# Copyright 2022 OmniOS Community Edition (OmniOSce) Association.
+# Copyright 2024 OmniOS Community Edition (OmniOSce) Association.
 
 . ../../lib/build.sh
 
@@ -22,37 +22,15 @@ PKG=ooce/network/mosh
 SUMMARY="mosh - mobile shell"
 DESC="Remote terminal application that allows roaming"
 
-# The protobuf ABI changes frequently. Link mosh statically
-# to the current version.
-PBUFVER=3.21.9
-
 set_arch 64
 
+CXXFLAGS[amd64]+=" -std=c++17"
+CXXFLAGS[aarch64]+=" -std=c++17"
+
 init
-prep_build
-
-#####################################################################
-# Download and build a static version of protobuf
-
-save_buildenv
-
-CONFIGURE_OPTS=" --disable-shared --enable-static"
-
-build_dependency -noctf protobuf protobuf-$PBUFVER \
-    protobuf protobuf-cpp $PBUFVER
-
-restore_buildenv
-
-export protobuf_CFLAGS="-I$DEPROOT/opt/ooce/include"
-export protobuf_LIBS="-L$DEPROOT/opt/ooce/lib/amd64 -lprotobuf"
-
-# the mosh build requires the protoc protobuf compiler
-PATH+=":$DEPROOT$OOCEBIN"
-
-#####################################################################
-
 download_source $PROG $PROG $VER
 patch_source
+prep_build
 build -noctf    # C++
 make_package
 clean_up

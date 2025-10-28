@@ -12,17 +12,18 @@
 # http://www.illumos.org/license/CDDL.
 # }}}
 
-# Copyright 2023 OmniOS Community Edition (OmniOSce) Association.
+# Copyright 2024 OmniOS Community Edition (OmniOSce) Association.
 
 . ../../lib/build.sh
 
 PROG=cyrus
-VER=3.8.0
+VER=3.10.0
 PKG=ooce/network/cyrus-imapd
-SUMMARY="Cyrus IMAP is an email, contacts and calendar server"
-DESC="$SUMMARY"
+SUMMARY="Cyrus IMAP"
+DESC="An email, contacts and calendar server"
 
-ICALVER=3.0.16
+ICALVER=3.0.19
+XAPIANVER=1.4.27
 
 # The icu4c ABI changes frequently. Lock the version
 # pulled into each build of cyrus-imapd.
@@ -47,6 +48,7 @@ XFORM_ARGS="
     -DUSER=cyrus -DGROUP=cyrus
     -DRUNDIR=var/run/cyrus
     -DICAL=$ICALVER
+    -DXAPIAN=$XAPIANVER
 "
 
 init
@@ -55,9 +57,19 @@ prep_build
 #########################################################################
 # Download and build bundled dependencies
 
-## Build ical dependency, which uses cmake
+## Build xapian dependency
 
 save_buildenv
+
+build_dependency xapian xapian-core-$XAPIANVER $PROG/xapian \
+    xapian-core $XAPIANVER
+
+# xapian-config
+PATH+=:$DEPROOT$PREFIX/bin
+
+## Build ical dependency, which uses cmake
+
+restore_buildenv
 
 CONFIGURE_CMD="$CMAKE ."
 CONFIGURE_OPTS="
@@ -96,6 +108,7 @@ export KRB5_LIBS="-L/usr/lib/amd64 -lkrb5"
 export KRB_LIBS="-lkrb5"
 export KRB5_CFLAGS="-I/usr/include/kerberosv5"
 CPPFLAGS+=" $KRB5_CFLAGS"
+LDFLAGS+=" -lumem"
 
 CONFIGURE_OPTS="
     --prefix=$PREFIX
@@ -106,6 +119,8 @@ CONFIGURE_OPTS="
     --enable-http
     --enable-calalarmd
     --enable-idled
+    --enable-xapian
+    --enable-jmap
     --with-sasl=$OPREFIX
 "
 CONFIGURE_OPTS[amd64]+=" --libexecdir=$PREFIX/libexec"
@@ -114,7 +129,7 @@ post_install() {
     # Copy in the dependency libraries
 
     pushd $deplib >/dev/null
-    for lib in libical*; do
+    for lib in libical* libxapian*; do
         [[ $lib = *.so.* && -f $lib && ! -h $lib ]] || continue
         tgt=`echo $lib | cut -d. -f1-3`
         logmsg "--- installing library $lib -> $tgt"

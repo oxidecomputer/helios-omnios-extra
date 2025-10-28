@@ -12,18 +12,16 @@
 # http://www.illumos.org/license/CDDL.
 # }}}
 
-# Copyright 2023 OmniOS Community Edition (OmniOSce) Association.
+# Copyright 2025 OmniOS Community Edition (OmniOSce) Association.
 
 . ../../lib/build.sh
 
 PROG=mariadb
-VER=10.11.4
+VER=10.11.11
 PKG=ooce/database/mariadb-1011
 SUMMARY="MariaDB"
 DESC="A community-developed, commercially supported fork of the "
 DESC+="MySQL relational database management system"
-
-min_rel 151042
 
 MAJVER=${VER%.*}
 sMAJVER=${MAJVER//./}
@@ -54,6 +52,7 @@ XFORM_ARGS="
     -DUSER=mysql -DGROUP=mysql
 "
 
+CPPFLAGS+=" -I/usr/include/ncurses -DOOCEVER=$RELVER"
 CFLAGS+=" -O3 -I$OPREFIX/include -I/usr/include/gssapi"
 CXXFLAGS[i386]="$CFLAGS ${CFLAGS[i386]} -R$OPREFIX/lib"
 CXXFLAGS[amd64]="$CFLAGS ${CFLAGS[amd64]} -R$OPREFIX/lib/amd64"
@@ -126,6 +125,8 @@ CONFIGURE_OPTS[WS]="
     -DWITH_MYSQLD_LDFLAGS=-lumem
 
     -DWITH_PIC=1
+
+    -DCMAKE_POLICY_VERSION_MINIMUM=3.5
 "
 
 # Make ISA binaries for mysql_config, to allow software to find the
