@@ -82,7 +82,8 @@ CONFIGURE_OPTS[amd64_WS]="
 pre_configure() {
     typeset arch=$1
 
-    CONFIGURE_OPTS[$arch]+="-DLLVM_EXTERNAL_CLANG_TOOLS_EXTRA_SOURCE_DIR=$TMPDIR/$EXTRACTED_SRC/../clang-tools-extra"
+    CONFIGURE_OPTS[$arch]+=" -DLLVM_EXTERNAL_CLANG_TOOLS_EXTRA_SOURCE_DIR="
+    CONFIGURE_OPTS[$arch]+="$TMPDIR/$EXTRACTED_SRC/../clang-tools-extra"
 }
 
 LDFLAGS+=" -lm"
