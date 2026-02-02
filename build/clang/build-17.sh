@@ -78,6 +78,14 @@ CONFIGURE_OPTS[amd64_WS]="
     -DLLVM_DIR=\"$PREFIX/lib/cmake/llvm\"
     -DLLVM_INCLUDE_TESTS=OFF
 "
+
+pre_configure() {
+    typeset arch=$1
+
+    CONFIGURE_OPTS[$arch]+=" -DLLVM_EXTERNAL_CLANG_TOOLS_EXTRA_SOURCE_DIR="
+    CONFIGURE_OPTS[$arch]+="$TMPDIR/$EXTRACTED_SRC/../clang-tools-extra"
+}
+
 LDFLAGS+=" -lm"
 # we want to end up with '$ORIGIN/../lib' as runpath and not with
 # '$PREFIX/lib:$ORIGIN/../lib'; yet we need to find libLLVM during build time
