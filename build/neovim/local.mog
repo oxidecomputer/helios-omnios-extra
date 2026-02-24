@@ -12,5 +12,5 @@
 
 license LICENSE.txt license=Apache2
 
-<include binlink.mog>
+<transform dir path=usr/share/applications -> drop>
 

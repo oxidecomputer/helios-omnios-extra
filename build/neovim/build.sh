@@ -22,8 +22,8 @@ PKG=ooce/editor/neovim
 SUMMARY="Neovim"
 DESC="hyperextensible Vim-based text editor"
 
-OPREFIX=$PREFIX
-PREFIX+="/$PROG"
+# Install in /usr for Helios
+set_prefix /usr
 
 set_arch 64
 set_clangver
@@ -55,12 +55,11 @@ pre_configure() {
             -DUSE_BUNDLED_LIBUV=OFF
         \"
         CMAKE_EXTRA_FLAGS=\"
-            -DCMAKE_EXE_LINKER_FLAGS='-Wl,-R$OPREFIX/${LIBDIRS[$arch]} -lgcc_s
-            -lumem'
+            -DCMAKE_EXE_LINKER_FLAGS='-lgcc_s -lumem'
         \"
     "
 
-    export CMAKE_LIBRARY_PATH=$OPREFIX/${LIBDIRS[$arch]}
+    #export CMAKE_LIBRARY_PATH=$OPREFIX/${LIBDIRS[$arch]}
 
     # no configure
     false

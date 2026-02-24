@@ -24,6 +24,9 @@ DESC="$PROG - A JSON implementation in C"
 
 test_relver '>=' 151047 && set_clangver
 
+# Install in /usr for Helios
+set_prefix /usr
+
 BUILD_DEPENDS_IPS="
     ooce/developer/cmake
 "

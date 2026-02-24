@@ -23,11 +23,14 @@ SUMMARY="$PROG - x/y/zmodem implementation"
 DESC="$PROG is a UNIX communication package providing the XMODEM, YMODEM and "
 DESC+="ZMODEM file transfer protocols."
 
+# Install in /usr for Helios
+set_prefix /usr
+
 set_arch 64
 
 HARDLINK_TARGETS="
-    opt/ooce/bin/rx
-    opt/ooce/bin/sx
+    ${PREFIX#/}/bin/rx
+    ${PREFIX#/}/bin/sx
 "
 
 XFORM_ARGS="
@@ -37,6 +40,7 @@ XFORM_ARGS="
 # The files delivered are prefixed by 'l' by default. Remove that.
 CONFIGURE_OPTS+="
     --program-transform-name='s/^l//'
+    --mandir=/usr/share/man
 "
 
 # The configure script looks for a libbe and links it in if found (for syslog
