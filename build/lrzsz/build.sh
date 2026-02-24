@@ -23,11 +23,14 @@ SUMMARY="$PROG - x/y/zmodem implementation"
 DESC="$PROG is a UNIX communication package providing the XMODEM, YMODEM and "
 DESC+="ZMODEM file transfer protocols."
 
+# Install in /usr for Helios
+set_prefix /usr
+
 set_arch 64
 
 HARDLINK_TARGETS="
-    opt/ooce/bin/rx
-    opt/ooce/bin/sx
+    ${PREFIX#/}/bin/rx
+    ${PREFIX#/}/bin/sx
 "
 
 XFORM_ARGS="

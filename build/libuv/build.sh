@@ -22,6 +22,9 @@ PKG=ooce/library/libuv
 SUMMARY=$PROG
 DESC="Multi-platform support library with a focus on asynchronous I/O."
 
+# Install in /usr for Helios
+set_prefix /usr
+
 CONFIGURE_OPTS+="
     --disable-static
 "

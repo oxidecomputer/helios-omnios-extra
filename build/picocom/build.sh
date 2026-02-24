@@ -30,6 +30,9 @@ DASHREV=1
 
 set_builddir $PROG-$HASH
 
+# Install in /usr for Helios
+set_prefix /usr
+
 set_arch 64
 
 XFORM_ARGS="

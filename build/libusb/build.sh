@@ -23,6 +23,9 @@ PKG=ooce/library/libusb-1
 SUMMARY="libusb 1.0"
 DESC="A cross-platform library to access USB devices"
 
+# Install in /usr for Helios
+set_prefix /usr
+
 test_relver '>=' 151055 && set_clangver
 
 BUILD_DEPENDS_IPS="

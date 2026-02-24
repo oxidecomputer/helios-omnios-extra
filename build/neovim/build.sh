@@ -22,6 +22,9 @@ PKG=ooce/editor/neovim
 SUMMARY="Neovim"
 DESC="hyperextensible Vim-based text editor"
 
+# Install in /usr for Helios
+set_prefix /usr
+
 OPREFIX=$PREFIX
 PREFIX+="/$PROG"
 

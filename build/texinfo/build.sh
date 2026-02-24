@@ -23,6 +23,9 @@ SUMMARY="$PROG - the official documentation format of the GNU project"
 DESC="Texinfo uses a single source file to produce output in a number of "
 DESC+="formats, both online and printed."
 
+# Install in /usr for Helios
+set_prefix /usr
+
 OPREFIX=$PREFIX
 PREFIX+=/$PROG
 
