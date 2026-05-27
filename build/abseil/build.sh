@@ -12,39 +12,30 @@
 # http://www.illumos.org/license/CDDL.
 # }}}
 
-# Copyright 2023 OmniOS Community Edition (OmniOSce) Association.
+# Copyright 2025 Oxide Computer Company
 
 . ../../lib/build.sh
 
-PROG=protobuf
-VER=25.1
-PKG=ooce/developer/protobuf
-SUMMARY="protobuf"
-DESC="Google's language-neutral, platform-neutral, extensible mechanism "
-DESC+="for serializing structured data"
+PROG=abseil
+VER=20240116.3
+PKG=ooce/library/abseil
+SUMMARY="abseil"
+DESC="Collection of c++ libraries from google"
 
-forgo_isaexec
+set_builddir $PROG-cpp-$VER
 
 CONFIGURE_OPTS="
     -DCMAKE_BUILD_TYPE=Release
     -DCMAKE_INSTALL_PREFIX=$PREFIX
-    -DCMAKE_POSITION_INDEPENDENT_CODE=ON
-    -Dprotobuf_BUILD_TESTS=OFF
-    -Dprotobuf_ABSL_PROVIDER=package
-    -DCMAKE_PREFIX_PATH=$PREFIX
-"
-CONFIGURE_OPTS[i386]="-DCMAKE_INSTALL_LIBDIR=$PREFIX/${LIBDIRS[i386]}"
-CONFIGURE_OPTS[amd64]="
-    -DCMAKE_INSTALL_LIBDIR=$PREFIX/${LIBDIRS[amd64]}
-    -DCMAKE_LIBRARY_ARCHITECTURE=amd64
 "
 
+CONFIGURE_OPTS[i386]="-DCMAKE_INSTALL_LIBDIR=$PREFIX/${LIBDIRS[i386]}"
+CONFIGURE_OPTS[amd64]="-DCMAKE_INSTALL_LIBDIR=$PREFIX/${LIBDIRS[amd64]}"
+
 init
-clone_github_source $PROG "$GITHUB/protocolbuffers/$PROG" v$VER
-append_builddir $PROG
-run_inbuild $GIT submodule update --init --recursive
-prep_build cmake+ninja
+download_source abseil $PROG-cpp-$VER
 patch_source
+prep_build cmake
 build -noctf    # C++
 make_package
 clean_up

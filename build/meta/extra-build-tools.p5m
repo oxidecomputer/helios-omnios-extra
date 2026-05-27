@@ -20,6 +20,7 @@ depend fmri=ooce/developer/yasm type=require
 depend fmri=ooce/developer/zig type=require
 depend fmri=ooce/editor/emacs type=require
 depend fmri=ooce/fonts/liberation type=require
+depend fmri=ooce/library/abseil type=require
 depend fmri=ooce/library/apr type=require
 depend fmri=ooce/library/cairo type=require
 depend fmri=ooce/library/fcgi2 type=require

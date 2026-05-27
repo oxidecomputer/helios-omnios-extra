@@ -1,0 +1,31 @@
+This was fixed upstream in
+https://github.com/boostorg/process/commit/bb375f50bd5b362b087aab326df158a
+
+This patch can be removed once we have updated past that.
+
+diff --git a/libs/process/src/ext/cwd.cpp b/libs/process/src/ext/cwd.cpp
+index 6aee83de1..32042ce4e 100644
+--- a/libs/process/src/ext/cwd.cpp
++++ b/libs/process/src/ext/cwd.cpp
+@@ -124,7 +124,7 @@ filesystem::path cwd(boost::process::v2::pid_type pid, boost::system::error_code
+             filesystem::path("/proc") / std::to_string(pid) / "cwd", ec
+             );
+ #elif defined(__sun)
+-    return fileystem::canonical(
++    return filesystem::canonical(
+             filesystem::path("/proc") / std::to_string(pid) / "path/cwd", ec
+             );
+ #endif
+diff --git a/libs/process/src/ext/exe.cpp b/libs/process/src/ext/exe.cpp
+index 0f05f8ab0..0d0d95ada 100644
+--- a/libs/process/src/ext/exe.cpp
++++ b/libs/process/src/ext/exe.cpp
+@@ -138,7 +138,7 @@ filesystem::path exe(boost::process::v2::pid_type pid, boost::system::error_code
+             filesystem::path("/proc") / std::to_string(pid) / "exe", ec
+             );
+ #elif defined(__sun)
+-    return fileystem::canonical(
++    return filesystem::canonical(
+             filesystem::path("/proc") / std::to_string(pid) / "path/a.out", ec
+             );
+ #endif
