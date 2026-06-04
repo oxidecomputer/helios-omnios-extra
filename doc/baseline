@@ -264,7 +264,7 @@ helios ooce/server/caddy
 helios ooce/server/freeradius
 helios ooce/server/haproxy
 helios ooce/server/nginx
-helios ooce/server/nginx-128
+helios ooce/server/nginx-130
 helios ooce/server/nginx-common
 helios ooce/server/webservd-common
 helios ooce/storage/minio
